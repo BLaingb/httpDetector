@@ -1,0 +1,10 @@
+mx/itesm/httpddosdetector/TcpState.class
+mx/itesm/httpddosdetector/ValueFlowFeature.class
+mx/itesm/httpddosdetector/IFlowFeature.class
+mx/itesm/httpddosdetector/Helpers.class
+mx/itesm/httpddosdetector/BinFlowFeature.class
+mx/itesm/httpddosdetector/FlowData.class
+mx/itesm/httpddosdetector/AppComponent$PingPacketProcessor.class
+mx/itesm/httpddosdetector/DistributionFlowFeature.class
+mx/itesm/httpddosdetector/TcpState$State.class
+mx/itesm/httpddosdetector/AppComponent.class
