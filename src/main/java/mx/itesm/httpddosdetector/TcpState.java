@@ -39,6 +39,10 @@ public class TcpState {
 
     private State state;
 
+    public TcpState(State state) {
+        this.state = state;
+    }
+
     public State getState(){
         return state;
     }
@@ -67,7 +71,7 @@ public class TcpState {
         }
     }
 
-    private boolean tcpSet(long find, long flags) {
+    private static boolean tcpSet(long find, long flags) {
         return ((find & flags) == find);
     }
 }
