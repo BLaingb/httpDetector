@@ -53,7 +53,7 @@ public class DistributionFlowFeature implements IFlowFeature {
             stdDev = (long) Helpers.stddev((float) sumsq, (float) sum, count);
             mean = sum / count;
         }
-        return String.format("%d,%d,%d,%d", min, mean, max, stdDev);
+        return String.format("{},{},{},{}", min, mean, max, stdDev);
     };
 
     @Override 

@@ -55,7 +55,7 @@ public class BinFlowFeature implements IFlowFeature {
             if (i > 0) {
                 ret += ",";
             }
-            ret += String.format("%d", bins[i]);
+            ret += String.format("{}", bins[i]);
         }
         return ret;
     };

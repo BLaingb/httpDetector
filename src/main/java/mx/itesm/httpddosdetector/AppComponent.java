@@ -18,6 +18,7 @@ package mx.itesm.httpddosdetector;
 import com.google.common.collect.ImmutableSet;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IPv4;
+import org.onlab.packet.TCP;
 import org.onlab.packet.MacAddress;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
@@ -41,8 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Dictionary;
 import java.util.Optional;
 import java.util.Properties;
-
-import static org.onlab.util.Tools.get;
+import java.util.HashMap;
 
 /**
  * Skeletal ONOS application component.
@@ -66,7 +66,7 @@ public class AppComponent {
     // protected FlowRuleService flowRuleService;
 
     private ApplicationId appId;
-    private final PacketProcessor packetProcessor = new PingPacketProcessor();
+    private final PacketProcessor packetProcessor = new TCPPacketProcessor();
     // private final FlowRuleListener flowListener = new InternalFlowListener();
 
     // Selector for ICMP traffic that is to be intercepted
@@ -74,10 +74,11 @@ public class AppComponent {
             .matchEthType(Ethernet.TYPE_IPV4).matchIPProtocol(IPv4.PROTOCOL_TCP)
             .build();
 
+    private HashMap<FlowKey, FlowData> flows = new HashMap<FlowKey, FlowData>();
+
     @Activate
     protected void activate() {
-        appId = coreService.registerApplication("org.onosproject.oneping",
-                                                () -> log.info("Periscope down."));
+        appId = coreService.registerApplication("mx.itesm.httpddosdetector", () -> log.info("Periscope down."));
         // flowRuleService.addListener(flowListener);
         packetService.addProcessor(packetProcessor, PRIORITY);
         packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
@@ -95,38 +96,44 @@ public class AppComponent {
 
     // Processes the specified TCP packet.
     private void processPacket(PacketContext context, Ethernet eth) {
-        DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
-        MacAddress src = eth.getSourceMAC();
-        MacAddress dst = eth.getDestinationMAC();
-        // PingRecord ping = new PingRecord(src, dst);
-        // boolean pinged = pings.get(deviceId).contains(ping);
+        IPv4 ipv4 = (IPv4) eth.getPayload();
+        int srcip = ipv4.getSourceAddress();
+        int dstip = ipv4.getDestinationAddress();
+        byte proto = ipv4.getProtocol();
+        TCP tcp = (TCP) ipv4.getPayload();
+        int srcport = tcp.getSourcePort();
+        int dstport = tcp.getDestinationPort();
 
-        // if (pinged) {
-        //     // Two pings detected; ban further pings and block packet-out
-        //     log.warn(MSG_PINGED_TWICE, src, dst, deviceId);
-        //     banPings(deviceId, src, dst);
-        //     context.block();
-        // } else {
-        //     // One ping detected; track it for the next minute
-        //     log.info(MSG_PINGED_ONCE, src, dst, deviceId);
-        //     pings.put(deviceId, ping);
-        //     timer.schedule(new PingPruner(deviceId, ping), TIMEOUT_SEC * 1000);
-        // }
+        FlowKey key = new FlowKey(srcip, srcport, dstip, dstport, proto);
+        if(flows.containsKey(key)){
+            FlowData f = flows.get(key);
+            f.Add(eth, srcip);
+            log.info("Updating flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+        } else {
+            FlowData f = new FlowData(srcip, srcport, dstip, dstport, proto, eth);
+            flows.put(key, f);
+            log.info("Added new flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+        }
     }
 
     // Indicates whether the specified packet corresponds to TCP packet.
-    private boolean isTcpPing(Ethernet eth) {
+    private boolean isTcpPacket(Ethernet eth) {
         return eth.getEtherType() == Ethernet.TYPE_IPV4 &&
                 ((IPv4) eth.getPayload()).getProtocol() == IPv4.PROTOCOL_TCP;
     }
 
     // Intercepts packets
-    private class PingPacketProcessor implements PacketProcessor {
+    private class TCPPacketProcessor implements PacketProcessor {
         @Override
         public void process(PacketContext context) {
-            Ethernet eth = context.inPacket().parsed();
-            if (isTcpPing(eth)) {
-                processPacket(context, eth);
+            Ethernet packet = context.inPacket().parsed();
+            
+            if (packet == null) {
+                return;
+            }
+
+            if (isTcpPacket(packet)) {
+                processPacket(context, packet);
             }
         }
     }

@@ -17,11 +17,15 @@ package mx.itesm.httpddosdetector;
 
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IPv4;
+import org.onlab.packet.TCP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FlowData, represents the relevant features of a flow
  */
 public class FlowData {
+    private static Logger log = LoggerFactory.getLogger(AppComponent.class);
 
     /**
      * Constants
@@ -82,14 +86,16 @@ public class FlowData {
     boolean hasData; // Whether the connection has had any data transmitted.
     boolean isBidir; // Is the flow bi-directional?
     short pdir; // Direction of the current packet
-    String srcip; // IP address of the source (client)
+    int srcip; // IP address of the source (client)
     int srcport; // Port number of the source connection
-    String dstip; // IP address of the destination (server)
+    int dstip; // IP address of the destination (server)
     int dstport; // Port number of the destionation connection.
     byte proto; // The IP protocol being used for the connection.
     byte dscp; // The first set DSCP field for the flow.
+    FlowKey key;
 
-    public FlowData(String srcip, int srcport, String dstip, int dstport, byte proto, Ethernet packet, long id) {
+    public FlowData(int srcip, int srcport, int dstip, int dstport, byte proto, Ethernet packet) {
+        this.key = new FlowKey(srcip, srcport, dstip, dstport, proto);
         this.f = new IFlowFeature[NUM_FEATURES];
         this.valid = false;
         this.f[TOTAL_FPACKETS] = new ValueFlowFeature(0);
@@ -114,60 +120,68 @@ public class FlowData {
         this.f[TOTAL_FHLEN] = new ValueFlowFeature(0);
         this.f[TOTAL_BHLEN] = new ValueFlowFeature(0);
         // Basic flow identification criteria
+        IPv4 ipv4 = (IPv4) packet.getPayload();
+        TCP tcp = (TCP) ipv4.getPayload();
         this.srcip = srcip;
         this.srcport = srcport;
         this.dstip = dstip;
         this.dstport = dstport;
         this.proto = proto;
-        // this.dscp = uint8(pkt["dscp"])
+        this.dscp = ipv4.getDscp();
         // ---------------------------------------------------------
         this.f[TOTAL_FPACKETS].Set(1);
-        // length := pkt["len"]
-        // this.f[TOTAL_FVOLUME].Set(length)
-        // this.f[FPKTL].Add(length)
-        // this.firstTime = pkt["time"]
+        long length = ipv4.getTotalLength();
+        short flags = tcp.getFlags();
+        this.f[TOTAL_FVOLUME].Set(length);
+        this.f[FPKTL].Add(length);
+        this.firstTime = System.currentTimeMillis() / 1000;
         this.flast = this.firstTime;
         this.activeStart = this.firstTime;
         if (this.proto == IPv4.PROTOCOL_TCP) {
             // TCP specific code:
             this.cstate = new TcpState(TcpState.State.START);
             this.sstate = new TcpState(TcpState.State.START);
-            // if (TcpState.tcpSet(TCP_PSH, pkt["flags"])) {
-            // this.f[FPSH_CNT].Set(1);
-            // }
-            // if (TcpState.tcpSet(TCP_URG, pkt["flags"])) {
-            // this.f[FURG_CNT].Set(1);
-            // }
+            if (TcpState.tcpSet(TcpState.TCP_PSH, flags)) {
+                this.f[FPSH_CNT].Set(1);
+            }
+            if (TcpState.tcpSet(TcpState.TCP_URG, flags)) {
+                this.f[FURG_CNT].Set(1);
+            }
         }
-        // this.f[TOTAL_FHLEN].Set(pkt["iphlen"] + pkt["prhlen"])
+        this.f[TOTAL_FHLEN].Set(ipv4.getHeaderLength());
 
         this.hasData = false;
         this.pdir = P_FORWARD;
-        // this.updateStatus(pkt);
+        this.updateStatus(packet);
     }
 
     void updateTcpState(Ethernet packet) {
-        // cstate.setState(pkt["flags"], P_FORWARD, pdir);
-        // sstate.setState(pkt["flags"], P_BACKWARD, pdir);
+        IPv4 ipv4 = (IPv4) packet.getPayload();
+        TCP tcp = (TCP) ipv4.getPayload();
+        short flags = tcp.getFlags();
+        cstate.setState(flags, P_FORWARD, pdir);
+        sstate.setState(flags, P_BACKWARD, pdir);
     }
     
     void updateStatus(Ethernet packet) {
+        IPv4 ipv4 = (IPv4) packet.getPayload();
+        long length = ipv4.getTotalLength();
         if (proto == IP_UDP) {
             if (valid) {
                 return;
             }
-            // if (pkt["len"] > 8) {
-            //     hasData = true;
-            // }
+            if (length > 8) {
+                hasData = true;
+            }
             if (hasData && isBidir) {
                 valid = true;
             }
         } else if (proto == IP_TCP) {
             if (!valid) {
                 if (cstate.getState() == TcpState.State.ESTABLISHED) {
-                    // if (pkt["len"] > (pkt["iphlen"] + pkt["prhlen"])) {
-                    //     valid = true;
-                    // }
+                    if (length > ipv4.getHeaderLength()) {
+                        valid = true;
+                    }
                 }
             }
             updateTcpState(packet);
@@ -187,95 +201,92 @@ public class FlowData {
         return blast;
     }
     
-    int Add(Ethernet packet, String srcip) {
-        // now := pkt["time"]
+    int Add(Ethernet packet, int srcip) {
+        long now = System.currentTimeMillis() / 1000;
         long last = getLastTime();
-        // long diff = now - last;
-        // if (diff > FLOW_TIMEOUT) {
-        //     return ADD_IDLE;
-        // }
-        // if (now < last) {
-        //     log.Printf("Flow: ignoring reordered packet. %d < %d\n", now, last);
-        //     return ADD_SUCCESS;
-        // }
-        // length := pkt["len"]
-        // hlen := pkt["iphlen"] + pkt["prhlen"]
-        // if (now < firstTime) {
-        //     log.Fatalf("Current packet is before start of flow. %d < %d\n",
-        //         now,
-        //         firstTime)
-        // }
+        long diff = now - last;
+        if (diff > FLOW_TIMEOUT) {
+            return ADD_IDLE;
+        }
+        if (now < last) {
+            log.info("Flow: ignoring reordered packet. {} < {}\n", now, last);
+            return ADD_SUCCESS;
+        }
+        IPv4 ipv4 = (IPv4) packet.getPayload();
+        long length = ipv4.getTotalLength();
+        long hlen = ipv4.getHeaderLength();
+        byte flags = ipv4.getFlags();
+        if (now < firstTime) {
+            log.error("Current packet is before start of flow. {} < {}\n", now, firstTime);
+        }
         if (this.srcip == srcip) {
             pdir = P_FORWARD;
         } else {
             pdir = P_BACKWARD;
         }
-        // if (diff > IDLE_THRESHOLD) {
-        //     f[IDLE].Add(diff)
-        //     // Active time stats - calculated by looking at the previous packet
-        //     // time and the packet time for when the last idle time ended.
-        //     diff = last - activeStart
-        //     f[ACTIVE].Add(diff)
+        if (diff > IDLE_THRESHOLD) {
+            f[IDLE].Add(diff);
+            // Active time stats - calculated by looking at the previous packet
+            // time and the packet time for when the last idle time ended.
+            diff = last - activeStart;
+            f[ACTIVE].Add(diff);
     
-        //     flast = 0
-        //     blast = 0
-        //     activeStart = now
-        // }
+            flast = 0;
+            blast = 0;
+            activeStart = now;
+        }
         if (pdir == P_FORWARD) {
-            if (dscp == 0) {
-                // dscp = uint8(pkt["dscp"]);
-            }
             // Packet is travelling in the forward direction
             // Calculate some statistics
             // Packet length
-            // f[FPKTL].Add(length)
-            // f[TOTAL_FVOLUME].Add(length)
-            // f[TOTAL_FPACKETS].Add(1)
-            // f[TOTAL_FHLEN].Add(hlen)
+            f[FPKTL].Add(length);
+            f[TOTAL_FVOLUME].Add(length);
+            f[TOTAL_FPACKETS].Add(1);
+            f[TOTAL_FHLEN].Add(hlen);
             // Interarrival time
             if (flast > 0) {
-                // diff = now - flast
-                // f[FIAT].Add(diff)
+                diff = now - flast;
+                f[FIAT].Add(diff);
             }
             if (proto == IP_TCP) {
                 // Packet is using TCP protocol
-                // if tcpSet(TCP_PSH, pkt["flags"]) {
-                //     f[FPSH_CNT].Add(1)
-                // }
-                // if tcpSet(TCP_URG, pkt["flags"]) {
-                //     f[FURG_CNT].Add(1)
-                // }
+                if (TcpState.tcpSet(TcpState.TCP_PSH, flags)) {
+                    f[FPSH_CNT].Add(1);
+                }
+                if (TcpState.tcpSet(TcpState.TCP_URG, flags)) {
+                    f[FURG_CNT].Add(1);
+                }
                 // Update the last forward packet time stamp
             }
-            // flast = now
+            flast = now;
         } else {
             // Packet is travelling in the backward direction
             isBidir = true;
             if (dscp == 0) {
-                // dscp = uint8(pkt["dscp"]);
+                dscp = ipv4.getDscp();
             }
             // Calculate some statistics
             // Packet length
-            // f[BPKTL].Add(length)
-            // f[TOTAL_BVOLUME].Add(length) // Doubles up as c_bpktl_sum from NM
-            // f[TOTAL_BPACKETS].Add(1)
-            // f[TOTAL_BHLEN].Add(hlen)
+            f[BPKTL].Add(length);
+            f[TOTAL_BVOLUME].Add(length); // Doubles up as c_bpktl_sum from NM
+            f[TOTAL_BPACKETS].Add(1);
+            f[TOTAL_BHLEN].Add(hlen);
             // Inter-arrival time
             if (blast > 0) {
-                // diff = now - blast
-                // f[BIAT].Add(diff)
+                diff = now - blast;
+                f[BIAT].Add(diff);
             }
             if (proto == IP_TCP) {
                 // Packet is using TCP protocol
-                // if (tcpSet(TCP_PSH, pkt["flags"])) {
-                //     f[BPSH_CNT].Add(1)
-                // }
-                // if (tcpSet(TCP_URG, pkt["flags"])) {
-                //     f[BURG_CNT].Add(1)
-                // }
+                if (TcpState.tcpSet(TcpState.TCP_PSH, flags)) {
+                    f[BPSH_CNT].Add(1);
+                }
+                if (TcpState.tcpSet(TcpState.TCP_URG, flags)) {
+                    f[BURG_CNT].Add(1);
+                }
             }
             // Update the last backward packet time stamp
-            // blast = now;
+            blast = now;
         }
     
         // Update the status (validity, TCP connection state) of the flow.
@@ -314,23 +325,22 @@ public class FlowData {
         }
         f[DURATION].Set(getLastTime() - firstTime);
         if (f[DURATION].Get() < 0) {
-            // log.Fatalf("duration (%d) < 0", f[DURATION]);
+            log.error("duration ({}) < 0", f[DURATION]);
         }
     
-        // fmt.Printf("%s,%d,%s,%d,%d",
-        //     srcip,
-        //     srcport,
-        //     dstip,
-        //     dstport,
-        //     proto)
+        log.info("%s,{},%s,{},{}",
+            srcip,
+            srcport,
+            dstip,
+            dstport,
+            proto);
         for (int i = 0; i < NUM_FEATURES; i++) {
-            // fmt.Printf(",%s", f[i].Export());
+            log.info(",%s", f[i].Export());
         }
-        // fmt.Printf(",%d", dscp)
-        // fmt.Printf(",%d", firstTime)
-        // fmt.Printf(",%d", flast)
-        // fmt.Printf(",%d", blast)
-        // fmt.Println()
+        log.info(",{}", dscp);
+        log.info(",{}", firstTime);
+        log.info(",{}", flast);
+        log.info(",{}", blast);
     }
     
     boolean CheckIdle(long time) {

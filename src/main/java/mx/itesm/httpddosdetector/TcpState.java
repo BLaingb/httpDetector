@@ -47,7 +47,7 @@ public class TcpState {
         return state;
     }
 
-    public void setState(long flags, byte dir, byte pdir){
+    public void setState(short flags, int dir, short pdir){
         if (tcpSet(TCP_RST, flags)) {
             state = State.CLOSED;
         } else if (tcpSet(TCP_FIN, flags) && (dir == pdir)) {
@@ -71,7 +71,7 @@ public class TcpState {
         }
     }
 
-    private static boolean tcpSet(long find, long flags) {
+    static boolean tcpSet(long find, short flags) {
         return ((find & flags) == find);
     }
 }
