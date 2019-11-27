@@ -35,7 +35,7 @@ public class ValueFlowFeature implements IFlowFeature {
     
     @Override 
     public String Export() {
-        return String.format("{}", value);
+        return String.format("%d", value);
     };
 
     @Override 

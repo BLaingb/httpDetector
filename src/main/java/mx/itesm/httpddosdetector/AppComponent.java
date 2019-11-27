@@ -104,15 +104,33 @@ public class AppComponent {
         int srcport = tcp.getSourcePort();
         int dstport = tcp.getDestinationPort();
 
-        FlowKey key = new FlowKey(srcip, srcport, dstip, dstport, proto);
-        if(flows.containsKey(key)){
-            FlowData f = flows.get(key);
+        FlowKey forwardKey = new FlowKey(srcip, srcport, dstip, dstport, proto);
+        FlowKey backwardKey = new FlowKey(dstip, dstport, srcip, srcport, proto);
+        FlowData f;
+        if(flows.containsKey(forwardKey) || flows.containsKey(backwardKey)){
+            // Update flow
+            if(flows.containsKey(forwardKey)){
+                f = flows.get(forwardKey);
+            }else{
+                f = flows.get(backwardKey);
+            }
             f.Add(eth, srcip);
             log.info("Updating flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+            f.Export();
         } else {
-            FlowData f = new FlowData(srcip, srcport, dstip, dstport, proto, eth);
-            flows.put(key, f);
+            // Add new flow
+            f = new FlowData(srcip, srcport, dstip, dstport, proto, eth);
+            flows.put(forwardKey, f);
+            flows.put(backwardKey, f);
             log.info("Added new flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+        }
+        if(f.isClosed()){
+            // TODO(abrahamtorres): Pass through classifier
+
+            // Delete from flows
+            flows.remove(forwardKey);
+            flows.remove(backwardKey);
+            f = null;
         }
     }
 

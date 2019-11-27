@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * FlowData, represents the relevant features of a flow
  */
 public class FlowData {
-    private static Logger log = LoggerFactory.getLogger(AppComponent.class);
+    private static Logger log = LoggerFactory.getLogger(FlowData.class);
 
     /**
      * Constants
@@ -92,10 +92,12 @@ public class FlowData {
     int dstport; // Port number of the destionation connection.
     byte proto; // The IP protocol being used for the connection.
     byte dscp; // The first set DSCP field for the flow.
-    FlowKey key;
+    FlowKey forwardKey;
+    FlowKey backwadKey;
 
     public FlowData(int srcip, int srcport, int dstip, int dstport, byte proto, Ethernet packet) {
-        this.key = new FlowKey(srcip, srcport, dstip, dstport, proto);
+        this.forwardKey = new FlowKey(srcip, srcport, dstip, dstport, proto);
+        this.backwadKey = new FlowKey(dstip, dstport, srcip, srcport, proto);
         this.f = new IFlowFeature[NUM_FEATURES];
         this.valid = false;
         this.f[TOTAL_FPACKETS] = new ValueFlowFeature(0);
@@ -153,6 +155,10 @@ public class FlowData {
         this.hasData = false;
         this.pdir = P_FORWARD;
         this.updateStatus(packet);
+    }
+
+    boolean isClosed(){
+        return cstate.getState() == TcpState.State.CLOSED && sstate.getState() == TcpState.State.CLOSED;
     }
 
     void updateTcpState(Ethernet packet) {
@@ -327,20 +333,15 @@ public class FlowData {
         if (f[DURATION].Get() < 0) {
             log.error("duration ({}) < 0", f[DURATION]);
         }
-    
-        log.info("%s,{},%s,{},{}",
-            srcip,
-            srcport,
-            dstip,
-            dstport,
-            proto);
+        String exported = String.format("%d,%d,%d,%d,%d", srcip, srcport, dstip, dstport, proto);
         for (int i = 0; i < NUM_FEATURES; i++) {
-            log.info(",%s", f[i].Export());
+            exported += String.format(",%s", f[i].Export());
         }
-        log.info(",{}", dscp);
-        log.info(",{}", firstTime);
-        log.info(",{}", flast);
-        log.info(",{}", blast);
+        exported += String.format(",%d", dscp);
+        exported += String.format(",%d", firstTime);
+        exported += String.format(",%d", flast);
+        exported += String.format(",%d", blast);
+        log.info(exported);
     }
     
     boolean CheckIdle(long time) {
