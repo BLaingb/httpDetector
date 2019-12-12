@@ -19,15 +19,10 @@ import mx.itesm.httpddosdetector.FlowData;
 import mx.itesm.httpddosdetector.Helpers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -42,12 +37,13 @@ public class RandomForest {
     /**
      * Loads the model to be used for the classification
      *
-     * @param json ObjectNode the array of trees to be used in the classification
+     * @param json JsonNode the array of trees to be used in the classification
      */
-    public void Load(ObjectNode json){
-        if(json.isArray()){
+    public void Load(JsonNode json){
+        if(json != null && json.isArray()){
             // Iterate over tree array and parse it
-            json.arrayNode().forEach( treeData -> { 
+            trees = new ArrayList<RandomTree>();
+            json.forEach( treeData -> { 
                 RandomTree t = new RandomTree();
                 t.Load(treeData);
                 trees.add(t);

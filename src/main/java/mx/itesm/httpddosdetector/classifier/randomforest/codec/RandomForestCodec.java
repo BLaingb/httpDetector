@@ -15,11 +15,7 @@
  */
 package mx.itesm.httpddosdetector.classifier.randomforest.codec;
 
-import mx.itesm.httpddosdetector.classifier.Classifier;
 import mx.itesm.httpddosdetector.classifier.randomforest.RandomForest;
-import mx.itesm.httpddosdetector.classifier.randomforest.RandomStump;
-import mx.itesm.httpddosdetector.classifier.randomforest.RandomTree;
-import mx.itesm.httpddosdetector.FlowData;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.onosproject.codec.CodecContext;
@@ -32,7 +28,7 @@ public class RandomForestCodec extends JsonCodec<RandomForest> {
     @Override
     public RandomForest decode(ObjectNode json, CodecContext context) {
         RandomForest forest = new RandomForest();
-        forest.Load(json);
+        forest.Load(json.get("model"));
         return forest;
     }
     

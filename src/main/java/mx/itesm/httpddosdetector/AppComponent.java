@@ -34,12 +34,11 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// import mx.itesm.httpddosdetector.classifier.Classifier;
-// import mx.itesm.httpddosdetector.classifier.randomforest.RandomForestClassifier;
+import mx.itesm.httpddosdetector.classifier.Classifier;
+import mx.itesm.httpddosdetector.classifier.randomforest.RandomForestBinClassifier;
 
-import java.util.Dictionary;
 import java.util.Optional;
-import java.util.Properties;
+import java.io.InputStream;
 import java.util.HashMap;
 
 /**
@@ -67,14 +66,14 @@ public class AppComponent {
     private final PacketProcessor packetProcessor = new TCPPacketProcessor();
     // private final FlowRuleListener flowListener = new InternalFlowListener();
 
-    // Selector for ICMP traffic that is to be intercepted
+    // Selector for TCP traffic that is to be intercepted
     private final TrafficSelector intercept = DefaultTrafficSelector.builder()
             .matchEthType(Ethernet.TYPE_IPV4).matchIPProtocol(IPv4.PROTOCOL_TCP)
             .build();
 
     private HashMap<FlowKey, FlowData> flows = new HashMap<FlowKey, FlowData>();
 
-    // private Classifier classifier;
+    private Classifier classifier;
 
     @Activate
     protected void activate() {
@@ -84,8 +83,8 @@ public class AppComponent {
         packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
                                      Optional.empty());
         log.info("HTTP DDoS detector started");
-        // classifier = new RandomForestClassifier();
-        // classifier.Load("../../../../../../../resources/random_forest_bin.json");
+        classifier = new RandomForestBinClassifier();
+        classifier.Load("/models/random_forest_bin.json");
     }
 
     @Deactivate
@@ -128,18 +127,18 @@ public class AppComponent {
         }
         if(f.IsClosed()){
             // Pass through classifier
-            // RandomForestClassifier.Class flowClass = RandomForestClassifier.Class.valueOf(classifier.Classify(f));
-            // switch(flowClass){
-            //     case NORMAL:
-            //         log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
-            //         break;
-            //     case ATTACK:
-            //         log.info("Detected attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
-            //         break;
-            //     case ERROR:
-            //         log.info("Error predicting flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
-            //         break;
-            // }
+            RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
+            switch(flowClass){
+                case NORMAL:
+                    log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+                    break;
+                case ATTACK:
+                    log.info("Detected attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+                    break;
+                case ERROR:
+                    log.info("Error predicting flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+                    break;
+            }
 
             // Delete from flows
             flows.remove(forwardKey);

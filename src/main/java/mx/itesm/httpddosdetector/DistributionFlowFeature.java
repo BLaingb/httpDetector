@@ -16,7 +16,6 @@
 package mx.itesm.httpddosdetector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * DistributionFlowFeature

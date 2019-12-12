@@ -18,9 +18,7 @@ package mx.itesm.httpddosdetector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,16 +99,13 @@ public class Helpers {
      */
     public static ObjectNode readJsonFile(String filepath) {
         ObjectNode json = null;
-
-        try (FileReader reader = new FileReader(filepath))
+        try (InputStream stream = Helpers.class.getResourceAsStream(filepath))
         {
             //Read JSON file
             ObjectMapper mapper = new ObjectMapper();
-            json = (ObjectNode) mapper.readTree(reader);
+            json = (ObjectNode) mapper.readTree(stream);
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
         return json;

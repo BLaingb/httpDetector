@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.onosproject.rest.AbstractWebResource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Classifier class to predict http ddos attacks with RandomForests
  */
@@ -64,6 +67,8 @@ public class RandomForestBinClassifier extends Classifier {
         }
     }
 
+    private static Logger log = LoggerFactory.getLogger(RandomForestBinClassifier.class);
+
     private RandomForest forest;
 
     /**
@@ -82,6 +87,14 @@ public class RandomForestBinClassifier extends Classifier {
             if(forest.isLoaded){
                 super.Load(filepath);
             }
+        } else {
+            log.error("Random forests json is null");
+        }
+
+        if(isLoaded){
+            log.info("Random forest classifier loaded");
+        } else{
+            log.error("Error while loading random forest classifier");
         }
     }
 

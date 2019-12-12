@@ -15,8 +15,6 @@
  */
 package mx.itesm.httpddosdetector;
 
-import java.lang.Math;
-
 /**
  * TcpState 
  */
