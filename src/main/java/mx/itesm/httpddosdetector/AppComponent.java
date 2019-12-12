@@ -15,29 +15,27 @@
  */
 package mx.itesm.httpddosdetector;
 
-import com.google.common.collect.ImmutableSet;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IPv4;
 import org.onlab.packet.TCP;
-import org.onlab.packet.MacAddress;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
-import org.onosproject.net.DeviceId;
 import org.onosproject.net.flow.DefaultTrafficSelector;
 import org.onosproject.net.flow.TrafficSelector;
 import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketPriority;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+// import mx.itesm.httpddosdetector.classifier.Classifier;
+// import mx.itesm.httpddosdetector.classifier.randomforest.RandomForestClassifier;
 
 import java.util.Dictionary;
 import java.util.Optional;
@@ -76,6 +74,8 @@ public class AppComponent {
 
     private HashMap<FlowKey, FlowData> flows = new HashMap<FlowKey, FlowData>();
 
+    // private Classifier classifier;
+
     @Activate
     protected void activate() {
         appId = coreService.registerApplication("mx.itesm.httpddosdetector", () -> log.info("Periscope down."));
@@ -84,6 +84,8 @@ public class AppComponent {
         packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
                                      Optional.empty());
         log.info("HTTP DDoS detector started");
+        // classifier = new RandomForestClassifier();
+        // classifier.Load("../../../../../../../resources/random_forest_bin.json");
     }
 
     @Deactivate
@@ -124,8 +126,20 @@ public class AppComponent {
             flows.put(backwardKey, f);
             log.info("Added new flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
         }
-        if(f.isClosed()){
-            // TODO(abrahamtorres): Pass through classifier
+        if(f.IsClosed()){
+            // Pass through classifier
+            // RandomForestClassifier.Class flowClass = RandomForestClassifier.Class.valueOf(classifier.Classify(f));
+            // switch(flowClass){
+            //     case NORMAL:
+            //         log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+            //         break;
+            //     case ATTACK:
+            //         log.info("Detected attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+            //         break;
+            //     case ERROR:
+            //         log.info("Error predicting flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
+            //         break;
+            // }
 
             // Delete from flows
             flows.remove(forwardKey);

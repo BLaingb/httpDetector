@@ -15,6 +15,9 @@
  */
 package mx.itesm.httpddosdetector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * DistributionFlowFeature
  */
@@ -68,5 +71,21 @@ public class DistributionFlowFeature implements IFlowFeature {
         count = l;
         min = l;
         max = l;
+    };
+
+    @Override
+    public ArrayList<Long> ToArrayList() {
+        ArrayList<Long> array = new ArrayList<Long>();
+        long stdDev = 0;
+        long mean = 0;
+        if (count > 0) {
+            stdDev = (long) Helpers.stddev((float) sumsq, (float) sum, count);
+            mean = sum / count;
+        }
+        array.add(min);
+        array.add(mean);
+        array.add(max);
+        array.add(stdDev);
+        return array;
     };
 }

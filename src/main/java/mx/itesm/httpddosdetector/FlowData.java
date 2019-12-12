@@ -21,6 +21,8 @@ import org.onlab.packet.TCP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 /**
  * FlowData, represents the relevant features of a flow
  */
@@ -157,57 +159,11 @@ public class FlowData {
         this.updateStatus(packet);
     }
 
-    boolean isClosed(){
+    public boolean IsClosed(){
         return cstate.getState() == TcpState.State.CLOSED && sstate.getState() == TcpState.State.CLOSED;
     }
 
-    void updateTcpState(Ethernet packet) {
-        IPv4 ipv4 = (IPv4) packet.getPayload();
-        TCP tcp = (TCP) ipv4.getPayload();
-        short flags = tcp.getFlags();
-        cstate.setState(flags, P_FORWARD, pdir);
-        sstate.setState(flags, P_BACKWARD, pdir);
-    }
-    
-    void updateStatus(Ethernet packet) {
-        IPv4 ipv4 = (IPv4) packet.getPayload();
-        long length = ipv4.getTotalLength();
-        if (proto == IP_UDP) {
-            if (valid) {
-                return;
-            }
-            if (length > 8) {
-                hasData = true;
-            }
-            if (hasData && isBidir) {
-                valid = true;
-            }
-        } else if (proto == IP_TCP) {
-            if (!valid) {
-                if (cstate.getState() == TcpState.State.ESTABLISHED) {
-                    if (length > ipv4.getHeaderLength()) {
-                        valid = true;
-                    }
-                }
-            }
-            updateTcpState(packet);
-        }
-    }
-    
-    long getLastTime() {
-        if (blast == 0) {
-            return flast;
-        }
-        if (flast == 0) {
-            return blast;
-        }
-        if (flast > blast) {
-            return flast;
-        }
-        return blast;
-    }
-    
-    int Add(Ethernet packet, int srcip) {
+    public int Add(Ethernet packet, int srcip) {
         long now = System.currentTimeMillis() / 1000;
         long last = getLastTime();
         long diff = now - last;
@@ -306,7 +262,7 @@ public class FlowData {
         return ADD_SUCCESS;
     }
     
-    void Export() {
+    public void Export() {
         if (!valid) {
             return;
         }
@@ -344,11 +300,94 @@ public class FlowData {
         log.info(exported);
     }
     
-    boolean CheckIdle(long time) {
+    public boolean CheckIdle(long time) {
         if ((time - getLastTime()) > FLOW_TIMEOUT) {
             return true;
         }
         return false;
+    }
+    
+    public ArrayList<Long> ToArrayList(){
+        if (!valid) {
+            return null;
+        }
+        ArrayList<Long> array = new ArrayList<Long>();
+    
+        // -----------------------------------
+        // First, lets consider the last active time in the calculations in case
+        // this changes something.
+        // -----------------------------------
+        long diff = getLastTime() - activeStart;
+        f[ACTIVE].Add(diff);
+    
+        // ---------------------------------
+        // Update Flow stats which require counters or other final calculations
+        // ---------------------------------
+    
+        // More sub-flow calculations
+        if (f[ACTIVE].Get() > 0) {
+            f[SFLOW_FPACKETS].Set(f[TOTAL_FPACKETS].Get() / f[ACTIVE].Get());
+            f[SFLOW_FBYTES].Set(f[TOTAL_FVOLUME].Get() / f[ACTIVE].Get());
+            f[SFLOW_BPACKETS].Set(f[TOTAL_BPACKETS].Get() / f[ACTIVE].Get());
+            f[SFLOW_BBYTES].Set(f[TOTAL_BVOLUME].Get() / f[ACTIVE].Get());
+        }
+        f[DURATION].Set(getLastTime() - firstTime);
+        if (f[DURATION].Get() < 0) {
+            log.error("duration ({}) < 0", f[DURATION]);
+        }
+        for (int i = 0; i < NUM_FEATURES; i++) {
+            ArrayList<Long> featureComponents = f[i].ToArrayList();
+            for (int j = 0; j < featureComponents.size(); j++){
+                array.add(featureComponents.get(j));
+            }
+        }
+        return array;
+    }
+
+    private void updateTcpState(Ethernet packet) {
+        IPv4 ipv4 = (IPv4) packet.getPayload();
+        TCP tcp = (TCP) ipv4.getPayload();
+        short flags = tcp.getFlags();
+        cstate.setState(flags, P_FORWARD, pdir);
+        sstate.setState(flags, P_BACKWARD, pdir);
+    }
+    
+    private void updateStatus(Ethernet packet) {
+        IPv4 ipv4 = (IPv4) packet.getPayload();
+        long length = ipv4.getTotalLength();
+        if (proto == IP_UDP) {
+            if (valid) {
+                return;
+            }
+            if (length > 8) {
+                hasData = true;
+            }
+            if (hasData && isBidir) {
+                valid = true;
+            }
+        } else if (proto == IP_TCP) {
+            if (!valid) {
+                if (cstate.getState() == TcpState.State.ESTABLISHED) {
+                    if (length > ipv4.getHeaderLength()) {
+                        valid = true;
+                    }
+                }
+            }
+            updateTcpState(packet);
+        }
+    }
+    
+    private long getLastTime() {
+        if (blast == 0) {
+            return flast;
+        }
+        if (flast == 0) {
+            return blast;
+        }
+        if (flast > blast) {
+            return flast;
+        }
+        return blast;
     }
     
 }

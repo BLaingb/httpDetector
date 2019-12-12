@@ -15,15 +15,29 @@
  */
 package mx.itesm.httpddosdetector;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Helpers functions for the HTTP DDos Detector
  */
 public class Helpers {
 
-    // Calculates the standard deviation of a feature.
-    static float stddev(float sqsum, float sum, long count) {
+    /**
+     * Calculates the standard deviation of a feature.
+     * @param sqsum the square sum of the values
+     * @param sum the sum of the values
+     * @param count the count of the values 
+     * @return the standar deviation
+     */
+    public static float stddev(float sqsum, float sum, long count) {
         if (count < 2) {
             return 0;
         }
@@ -31,20 +45,75 @@ public class Helpers {
         return (float) Math.sqrt((sqsum - (sum * sum / n)) / (n - 1));
     }
 
-    // Returns the minimum of two longs
-    static long min(long i1, long i2) {
+    /**
+     * Returns the minimum of two longs
+     * @param i1
+     * @param i2
+     * @return the minimum from i1 and i2
+     */
+    public static long min(long i1, long i2) {
         if (i1 < i2) {
             return i1;
         }
         return i2;
     }
 
-    // Returns the minimum of two ints
-    static int min(int i1, int i2) {
+    /**
+     * Returns the mininmum of two ints
+     * @param i1
+     * @param i2
+     * @return the minimum from i1 and i2
+     */
+    public static int min(int i1, int i2) {
         if (i1 < i2) {
             return i1;
         }
         return i2;
+    }
+
+    /**
+     * Get the mode of an array 
+     *
+     * @param a the array containing integers
+     * @return int the value that appears most often in the array
+     */
+    public static int mode(ArrayList<Integer> a){
+        HashMap<Integer, Integer> counts = new HashMap<Integer, Integer>();
+        int maxCount = 0;
+        int maxN = -1;
+        for(int i = 0; i < a.size(); i++){
+            Integer n = a.get(i);
+            int count = counts.getOrDefault(n, 0)+1;
+            counts.put(n, count);
+            if(count > maxCount){
+                maxCount = count;
+                maxN = i;
+            }
+        }
+        return maxN;
+    }
+
+    /**
+     * Get JSON object from file
+     *
+     * @param filepath target file path
+     * @return ObjectNode from file
+     */
+    public static ObjectNode readJsonFile(String filepath) {
+        ObjectNode json = null;
+
+        try (FileReader reader = new FileReader(filepath))
+        {
+            //Read JSON file
+            ObjectMapper mapper = new ObjectMapper();
+            json = (ObjectNode) mapper.readTree(reader);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 
 }

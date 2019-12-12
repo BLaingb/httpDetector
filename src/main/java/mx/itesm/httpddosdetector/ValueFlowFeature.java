@@ -15,6 +15,8 @@
  */
 package mx.itesm.httpddosdetector;
 
+import java.util.ArrayList;
+
 /**
  * ValueFlowFeature
  */
@@ -46,5 +48,12 @@ public class ValueFlowFeature implements IFlowFeature {
     @Override 
     public void Set(long l) {
         value = l;
+    };
+
+    @Override
+    public ArrayList<Long> ToArrayList() {
+        ArrayList<Long> array = new ArrayList<Long>();
+        array.add(value);
+        return array;
     };
 }

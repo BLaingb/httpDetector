@@ -15,6 +15,8 @@
  */
 package mx.itesm.httpddosdetector;
 
+import java.util.ArrayList;
+
 /**
  * BinFlowFeature, which takes values and bins them according to their value.
  */
@@ -22,9 +24,9 @@ public class BinFlowFeature implements IFlowFeature {
     /**
      * Properties
      */
-    public int numBins;     // The number of bins for this feature
-	public int binSep;      // Ie. the magnitude of the range contained in each bin
-	public int[] bins;      // Stores the actual count for each bin
+    public int numBins; // The number of bins for this feature
+    public int binSep; // Ie. the magnitude of the range contained in each bin
+    public int[] bins; // Stores the actual count for each bin
 
     /**
      * Initializes the BinFeature to contain bins starting at min and going to max.
@@ -32,7 +34,7 @@ public class BinFlowFeature implements IFlowFeature {
      * put in the last bin. numBins is the number of bins required in the range
      * [min, max]
      */
-    public BinFlowFeature(int min, int max, int numBins){
+    public BinFlowFeature(int min, int max, int numBins) {
         this.numBins = numBins;
         int diff = max - min;
         binSep = diff / numBins;
@@ -42,13 +44,13 @@ public class BinFlowFeature implements IFlowFeature {
         }
     }
 
-    @Override 
+    @Override
     public void Add(long l) {
-        int bin = Helpers.min((int)l/binSep, numBins);
-	    bins[bin] += 1;
+        int bin = Helpers.min((int) l / binSep, numBins);
+        bins[bin] += 1;
     };
-    
-    @Override 
+
+    @Override
     public String Export() {
         String ret = "";
         for (int i = 0; i < bins.length; i++) {
@@ -60,15 +62,24 @@ public class BinFlowFeature implements IFlowFeature {
         return ret;
     };
 
-    @Override 
+    @Override
     public long Get() {
         return (long) bins[0];
     };
 
-    @Override 
+    @Override
     public void Set(long l) {
         for (int i = 0; i < bins.length; i++) {
             bins[i] = (int) l;
         }
+    }
+
+    @Override
+    public ArrayList<Long> ToArrayList() {
+        ArrayList<Long> array = new ArrayList<Long>();
+        for (int i = 0; i < bins.length; i++) {
+            array.add((long) bins[i]);
+        }
+        return array;
     };
 }

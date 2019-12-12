@@ -1,0 +1,39 @@
+/*
+ * Copyright 2019-present Open Networking Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package mx.itesm.httpddosdetector.classifier.randomforest.codec;
+
+import mx.itesm.httpddosdetector.classifier.Classifier;
+import mx.itesm.httpddosdetector.classifier.randomforest.RandomForest;
+import mx.itesm.httpddosdetector.classifier.randomforest.RandomStump;
+import mx.itesm.httpddosdetector.classifier.randomforest.RandomTree;
+import mx.itesm.httpddosdetector.FlowData;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.onosproject.codec.CodecContext;
+import org.onosproject.codec.JsonCodec;
+
+/**
+ * Codec to load a json model into a random forest classifier
+ */
+public class RandomForestCodec extends JsonCodec<RandomForest> {
+    @Override
+    public RandomForest decode(ObjectNode json, CodecContext context) {
+        RandomForest forest = new RandomForest();
+        forest.Load(json);
+        return forest;
+    }
+    
+}
