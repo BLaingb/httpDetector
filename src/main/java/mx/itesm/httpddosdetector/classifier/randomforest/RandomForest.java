@@ -62,7 +62,8 @@ public class RandomForest {
     public int Classify(FlowData f) {
         ArrayList<Integer> predictions = new ArrayList<Integer>();
         for(int i = 0; i < trees.size(); i++){
-            predictions.add(trees.get(i).Classify(f));
+            int prediction = trees.get(i).Classify(f.ToArrayList());
+            predictions.add(prediction);
         }
         return Helpers.mode(predictions);
     }

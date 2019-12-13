@@ -108,6 +108,6 @@ public class RandomForestBinClassifier extends Classifier {
         if(super.Classify(f) == -1){
             return Class.ERROR.value;
         }
-        return Class.NORMAL.value;
+        return forest.Classify(f);
     }
 }

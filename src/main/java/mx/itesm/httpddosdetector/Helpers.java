@@ -85,7 +85,7 @@ public class Helpers {
             counts.put(n, count);
             if(count > maxCount){
                 maxCount = count;
-                maxN = i;
+                maxN = n;
             }
         }
         return maxN;

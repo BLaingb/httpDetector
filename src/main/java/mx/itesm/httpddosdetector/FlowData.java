@@ -312,6 +312,48 @@ public class FlowData {
             return null;
         }
         ArrayList<Long> array = new ArrayList<Long>();
+
+        // array.add(13l);
+        // array.add(5220l);
+        // array.add(11l);
+        // array.add(1964l);
+        // array.add(52l);
+        // array.add(401l);
+        // array.add(726l);
+        // array.add(336l);
+        // array.add(52l);
+        // array.add(178l);
+        // array.add(264l);
+        // array.add(99l);
+        // array.add(5l);
+        // array.add(0l);
+        // array.add(5l);
+        // array.add(1l);
+        // array.add(5l);
+        // array.add(1l);
+        // array.add(5l);
+        // array.add(2l);
+        // array.add(10l);
+        // array.add(10l);
+        // array.add(10l);
+        // array.add(10l);
+        // array.add(0l);
+        // array.add(0l);
+        // array.add(0l);
+        // array.add(0l);
+        // array.add(0l);
+        // array.add(13l);
+        // array.add(5220l);
+        // array.add(11l);
+        // array.add(1964l);
+        // array.add(7l);
+        // array.add(7l);
+        // array.add(0l);
+        // array.add(0l);
+        // array.add(684l);
+        // array.add(580l);
+
+        // return array;
     
         // -----------------------------------
         // First, lets consider the last active time in the calculations in case

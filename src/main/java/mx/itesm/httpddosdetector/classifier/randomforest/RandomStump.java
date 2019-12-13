@@ -63,12 +63,11 @@ public class RandomStump {
      *
      * @return int enumerator that determines the class of the FlowData parameter
      */
-    public int Classify(FlowData f) {
+    public int Classify(ArrayList<Long> X) {
         if(splitVariable == null){
             return splitSat;
         }
         int yhat = 0;
-        ArrayList<Long> X = f.ToArrayList();
         if(X.get(splitVariable) > splitValue){
             yhat = splitSat;
         }else{

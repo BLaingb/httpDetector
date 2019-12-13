@@ -57,7 +57,7 @@ public class RandomTree {
      *
      * @return int enumerator that determines the class of the FlowData parameter
      */
-    public int Classify(FlowData f) {
+    public int Classify(ArrayList<Long> X) {
         int y = 0;
         // Get values from model
         Integer splitVariable = splitModel.splitVariable;
@@ -68,15 +68,13 @@ public class RandomTree {
             // If no further splitting, return the majority label
             y = splitSat;
         }else if(subModel1 == null){
-            y = splitModel.Classify(f);
+            y = splitModel.Classify(X);
         }else{
             // Recurse on both sub-models
-            ArrayList<Long> X = f.ToArrayList();
-
             if (X.get(splitVariable) > splitValue){
-                y = subModel1.Classify(f);
+                y = subModel1.Classify(X);
             }else{
-                y = subModel0.Classify(f);
+                y = subModel0.Classify(X);
             }
         }
         return y;
