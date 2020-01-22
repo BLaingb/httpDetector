@@ -60,10 +60,10 @@ import java.util.LinkedList;
  * Skeletal ONOS application component.
  */
 @Component(immediate = true)
-public class AppComponent {
+public class HttpDdosDetector {
 
     /** Properties. */
-    private static Logger log = LoggerFactory.getLogger(AppComponent.class);
+    private static Logger log = LoggerFactory.getLogger(HttpDdosDetector.class);
     private static final int PRIORITY = 128;
     private static final int ATTACK_TIMEOUT = 90; // seconds
     private static final int ATTACK_THRESHOLD = 1; // attacks per ATTACK_TIMEOUT to be considered an attack
@@ -93,7 +93,6 @@ public class AppComponent {
     @Activate
     protected void activate() {
         appId = coreService.registerApplication("mx.itesm.httpddosdetector", () -> log.info("Periscope down."));
-        // flowRuleService.addListener(flowListener);
         packetService.addProcessor(packetProcessor, PRIORITY);
         packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
                                      Optional.empty());

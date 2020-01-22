@@ -28,13 +28,13 @@ import java.util.Set;
 /**
  * Set of tests of the ONOS application component.
  */
-public class AppComponentTest {
+public class HttpDdosDetectorTest {
 
-    private AppComponent component;
+    private HttpDdosDetector component;
 
     @Before
     public void setUp() {
-        // component = new AppComponent();
+        // component = new HttpDdosDetector();
         // component.coreService = get(CoreService.class);
         // component.activate();
     }
