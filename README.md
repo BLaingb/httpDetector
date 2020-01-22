@@ -8,11 +8,11 @@ This repository contains an ONOS application that is focused to detect and mitig
 - Random Forest classifier (Optional)
 
 ## Project structure
-- [mx.itesm.api.flow](./src/main/java/mx/itesm/api/flow/README.md) contains the code that interacts with the REST flow api.
-- [mx.itesm.httpddosdetector.classifier](./src/main/java/mx/itesm/httpddosdetector/classifier/README.md) contains a generic Classifier class that every classifier used should inherit from.
-- [mx.itesm.httpddosdetector.classifier.randomforest](./src/main/java/mx/itesm/httpddosdetector/classifier/randomforest/README.md) contains the implementation of the random forest classifier that loads a JSON file containing a trained model
-- [mx.itesm.httpddosdetector.flow.parser](./src/main/java/mx/itesm/httpddosdetector/flow/parser/README.md) contains the code implementation in java of [flowtbag](https://github.com/DanielArndt/flowtbag) to convert packets into flows
-- [mx.itesm.httpddosdetector.keys](./src/main/java/mx/itesm/httpddosdetector/keys/README.md) contain keys used for identifying flows, attacks and distributed attacks.
+- [mx.itesm.api.flow](./src/main/java/mx/itesm/api/flow) contains the code that interacts with the REST flow api.
+- [mx.itesm.httpddosdetector.classifier](./src/main/java/mx/itesm/httpddosdetector/classifier) contains a generic Classifier class that every classifier used should inherit from.
+- [mx.itesm.httpddosdetector.classifier.randomforest](./src/main/java/mx/itesm/httpddosdetector/classifier/randomforest) contains the implementation of the random forest classifier that loads a JSON file containing a trained model
+- [mx.itesm.httpddosdetector.flow.parser](./src/main/java/mx/itesm/httpddosdetector/flow/parser) contains the code implementation in java of [flowtbag](https://github.com/DanielArndt/flowtbag) to convert packets into flows
+- [mx.itesm.httpddosdetector.keys](./src/main/java/mx/itesm/httpddosdetector/keys) contain keys used for identifying flows, attacks and distributed attacks.
 
 ## Processing packets 
 In order to process and analyze the packets from the network traffic, we will use a [packet processor](http://api.onosproject.org/1.7.0/org/onosproject/net/packet/PacketProcessor.html). We will be based on an ONOS sample application from the onos [repository](https://wiki.onosproject.org/display/ONOS/Building+the+ONOS+Sample+Apps), to clone it run `git clone https://gerrit.onosproject.org/onos-app-samples`. In that repository we will use the **oneping** sample app, which process a packet and just allow one ping per minute.
