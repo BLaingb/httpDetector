@@ -313,6 +313,7 @@ public class FlowData {
         }
         ArrayList<Long> array = new ArrayList<Long>();
 
+        // Sample attack flow
         // array.add(13l);
         // array.add(5220l);
         // array.add(11l);

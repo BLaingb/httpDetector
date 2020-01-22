@@ -17,19 +17,23 @@ public class FlowKey {
  
     @Override   
     public boolean equals(Object obj) {
-       if (!(obj instanceof FlowKey))
-         return false;
-       FlowKey ref = (FlowKey) obj;
-       return this.srcip.equals(ref.srcip) && 
-           this.srcport.equals(ref.srcport) &&
-           this.dstip.equals(ref.dstip) &&
-           this.dstport.equals(ref.dstport) &&
-           this.proto.equals(ref.proto);
+        if (!(obj instanceof FlowKey))
+            return false;
+        FlowKey ref = (FlowKey) obj;
+        return this.srcip.equals(ref.srcip) && 
+            this.srcport.equals(ref.srcport) &&
+            this.dstip.equals(ref.dstip) &&
+            this.dstport.equals(ref.dstport) &&
+            this.proto.equals(ref.proto);
     }
  
-     @Override
-     public int hashCode() {
-         return srcip.hashCode() ^ srcport.hashCode() ^ dstip.hashCode() ^ dstport.hashCode() ^ proto.hashCode();
-     }
+    @Override
+    public int hashCode() {
+        return srcip.hashCode() ^ srcport.hashCode() ^ dstip.hashCode() ^ dstport.hashCode() ^ proto.hashCode();
+    }
+
+    public AttackKey toAttackKey(){
+        return new AttackKey(srcip, dstip, dstport);
+    }
  
  }
