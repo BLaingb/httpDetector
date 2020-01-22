@@ -20,18 +20,18 @@ In order to process and analyze the packets from the network traffic, we will us
 ### Converting packets into flows
 Afte we have the packet processor ready, we need to convert the packets into flows so we can pass them through our classifier. To convert them we use the [FlowData](./flow/parser/FlowData.java) class to append each packet to its corresponding flow. 
 
-This is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L135-L170)
+This is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L139-L174)
 
 ## Detecting malicious flows
 When a flow is closed, we can pass it through our classifiers, in this implementation we will use a random forest classifier. 
 
 We have previously trained the model and you can find it in the resources folder [here](./src/main/resources/models/random_forest_bin.json). The classifier has to previously load the model with the _RandomForestClassifier.Load_ method, and after that we can use the _RandomForestClassifier.Classify_ to obtain the predicted class of the provided flow.
 
-This is done in the HttpDdosDetector [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L172-L202)
+This is done in the HttpDdosDetector [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L176-L206)
 
 ## Mitigating attacks
 
-To mitigate we will use the [FlowApi.postFlowRule](./src/main/java/mx/itesm/api/flow/FlowApi.java#L63) method. The mitigation is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L204-L247). 
+To mitigate we will use the [FlowApi.postFlowRule](./src/main/java/mx/itesm/api/flow/FlowApi.java#L63) method. The mitigation is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L208-L251). 
 
 ## Configuration
 There are some constants in the application that change the performance of the http ddos detector, which are:
@@ -40,4 +40,4 @@ There are some constants in the application that change the performance of the h
 - ATTACK_THRESHOLD: Is the threshold of the number of attack flows that a host must receive in order to take action and block the attackers.
 - FLOW_RULE_TIME: Is the time to live of a flow rule that blocks an attacker, because we don't want to block forever that host.
 
-This constants are defined in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L70-L73).
+This constants are defined in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L70-L77).

@@ -67,10 +67,14 @@ public class HttpDdosDetector {
 
     /** Properties. */
     private static Logger log = LoggerFactory.getLogger(HttpDdosDetector.class);
+    // The priority of our packet processor.
     private static final int PROCESSOR_PRIORITY = 128;
+    // Is the window of time in which an attack flow is considered as active.
     private static final int ATTACK_TIMEOUT = 90; // seconds
-    private static final int ATTACK_THRESHOLD = 1; // attacks per ATTACK_TIMEOUT to be considered an attack
-    private static final int FLOW_RULE_TIME = 5 * 60; // 5 minutes
+    // Is the threshold of the number of attack flows that a host must receive in order to take action and block the attackers.
+    private static final int ATTACK_THRESHOLD = 1;
+    // Is the time to live of a flow rule that blocks an attacker, because we don't want to block forever that host.
+    private static final int FLOW_RULE_TIME = 5 * 60; // seconds
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     protected CoreService coreService;
