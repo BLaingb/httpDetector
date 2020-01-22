@@ -38,8 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import mx.itesm.httpddosdetector.classifier.Classifier;
 import mx.itesm.httpddosdetector.classifier.randomforest.RandomForestBinClassifier;
-
+import mx.itesm.httpddosdetector.flow.parser.FlowData;
+import mx.itesm.httpddosdetector.keys.AttackKey;
+import mx.itesm.httpddosdetector.keys.DistributedAttackKey;
+import mx.itesm.httpddosdetector.keys.FlowKey;
 import mx.itesm.api.flow.FlowApi;
+import mx.itesm.api.flow.FlowRuleId;
 import mx.itesm.api.ApiResponse;
 
 import java.util.Optional;

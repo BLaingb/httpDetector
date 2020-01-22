@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package mx.itesm.httpddosdetector;
+package mx.itesm.httpddosdetector.flow.parser;
 
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IPv4;
@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+
+import mx.itesm.httpddosdetector.keys.FlowKey;
 
 /**
  * FlowData, represents the relevant features of a flow
@@ -77,25 +79,25 @@ public class FlowData {
     /**
      * Properties
      */
-    IFlowFeature[] f; // A map of the features to be exported
-    boolean valid; // Has the flow met the requirements of a bi-directional flow
-    long activeStart; // The starting time of the latest activity
-    long firstTime; // The time of the first packet in the flow
-    long flast; // The time of the last packet in the forward direction
-    long blast; // The time of the last packet in the backward direction
-    TcpState cstate; // Connection state of the client
-    TcpState sstate; // Connection state of the server
-    boolean hasData; // Whether the connection has had any data transmitted.
-    boolean isBidir; // Is the flow bi-directional?
-    short pdir; // Direction of the current packet
-    int srcip; // IP address of the source (client)
-    int srcport; // Port number of the source connection
-    int dstip; // IP address of the destination (server)
-    int dstport; // Port number of the destionation connection.
-    byte proto; // The IP protocol being used for the connection.
-    byte dscp; // The first set DSCP field for the flow.
-    FlowKey forwardKey;
-    FlowKey backwadKey;
+    public IFlowFeature[] f; // A map of the features to be exported
+    public boolean valid; // Has the flow met the requirements of a bi-directional flow
+    public long activeStart; // The starting time of the latest activity
+    public long firstTime; // The time of the first packet in the flow
+    public long flast; // The time of the last packet in the forward direction
+    public long blast; // The time of the last packet in the backward direction
+    public TcpState cstate; // Connection state of the client
+    public TcpState sstate; // Connection state of the server
+    public boolean hasData; // Whether the connection has had any data transmitted.
+    public boolean isBidir; // Is the flow bi-directional?
+    public short pdir; // Direction of the current packet
+    public int srcip; // IP address of the source (client)
+    public int srcport; // Port number of the source connection
+    public int dstip; // IP address of the destination (server)
+    public int dstport; // Port number of the destionation connection.
+    public byte proto; // The IP protocol being used for the connection.
+    public byte dscp; // The first set DSCP field for the flow.
+    public FlowKey forwardKey;
+    public FlowKey backwadKey;
 
     public FlowData(int srcip, int srcport, int dstip, int dstport, byte proto, Ethernet packet) {
         this.forwardKey = new FlowKey(srcip, srcport, dstip, dstport, proto);

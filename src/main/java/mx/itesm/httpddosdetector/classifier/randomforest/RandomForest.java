@@ -15,7 +15,7 @@
  */
 package mx.itesm.httpddosdetector.classifier.randomforest;
 
-import mx.itesm.httpddosdetector.FlowData;
+import mx.itesm.httpddosdetector.flow.parser.FlowData;
 import mx.itesm.httpddosdetector.Helpers;
 
 import com.fasterxml.jackson.databind.JsonNode;

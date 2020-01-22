@@ -15,7 +15,7 @@
  */
 package mx.itesm.httpddosdetector.classifier;
 
-import mx.itesm.httpddosdetector.FlowData;
+import mx.itesm.httpddosdetector.flow.parser.FlowData;
 
 /**
  * Classifier class to load and predict if a flow is an http ddos attack

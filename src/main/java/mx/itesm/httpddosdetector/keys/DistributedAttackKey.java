@@ -1,4 +1,4 @@
-package mx.itesm.httpddosdetector;
+package mx.itesm.httpddosdetector.keys;
 
 public class DistributedAttackKey {
     public Integer dstip; 

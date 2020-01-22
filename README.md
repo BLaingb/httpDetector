@@ -7,28 +7,20 @@ This repository contains an ONOS application that is focused to detect and mitig
 - ONOS basics
 - Random Forest classifier (Optional)
 
-## Processing packets into flows
-In order to process and analyze the packets from the network traffic, we will use a [packet processor](http://api.onosproject.org/1.7.0/org/onosproject/net/packet/PacketProcessor.html). We will be based on an ONOS sample application from the onos [repository](https://wiki.onosproject.org/display/ONOS/Building+the+ONOS+Sample+Apps), to clone it run `git clone https://gerrit.onosproject.org/onos-app-samples`. In that repository we will use the **oneping** sample app, which process a packet and just allow one ping per minute. The necessary code to setup a packet processor is below.
+## Project structure
+- [mx.itesm.api.flow](./src/main/java/mx/itesm/api/flow/README.md) contains the code that interacts with the REST flow api.
+- [mx.itesm.httpddosdetector.classifier](./src/main/java/mx/itesm/httpddosdetector/classifier/README.md) contains a generic Classifier class that every classifier used should inherit from.
+- [mx.itesm.httpddosdetector.classifier.randomforest](./src/main/java/mx/itesm/httpddosdetector/classifier/randomforest/README.md) contains the implementation of the random forest classifier that loads a JSON file containing a trained model
+- [mx.itesm.httpddosdetector.flow.parser](./src/main/java/mx/itesm/httpddosdetector/flow/parser/README.md) contains the code implementation in java of [flowtbag](https://github.com/DanielArndt/flowtbag) to convert packets into flows
+- [mx.itesm.httpddosdetector.keys](./src/main/java/mx/itesm/httpddosdetector/keys/README.md) contain keys used for identifying flows, attacks and distributed attacks.
 
-```
-@Component(immediate = true)
-public class HttpDdosDetector {
-  @Reference(cardinality = ReferenceCardinality.MANDATORY)
-  protected CoreService coreService;
+## Processing packets 
+In order to process and analyze the packets from the network traffic, we will use a [packet processor](http://api.onosproject.org/1.7.0/org/onosproject/net/packet/PacketProcessor.html). We will be based on an ONOS sample application from the onos [repository](https://wiki.onosproject.org/display/ONOS/Building+the+ONOS+Sample+Apps), to clone it run `git clone https://gerrit.onosproject.org/onos-app-samples`. In that repository we will use the **oneping** sample app, which process a packet and just allow one ping per minute.
 
-  @Reference(cardinality = ReferenceCardinality.MANDATORY)
-  protected PacketService packetService;
+When we have the packet processor ready, we need to convert the packets into flows so we can pass them through our classifier. This feature extraction technique is based on the flowtbag tool written in go, you can check it [here](https://github.com/DanielArndt/flowtbag). All the files under the _mx.itesm.httpddosdetector.flow.parser_ package are a translation from the go files on the _flowtbag_ repository that are required to process the packets and convert them into flows.
 
-  private ApplicationId appId;
-  private final PacketProcessor packetProcessor = new TCPPacketProcessor();
-
-  // Selector for TCP traffic that is to be intercepted
-  private final TrafficSelector intercept = DefaultTrafficSelector.builder()
-    .matchEthType(Ethernet.TYPE_IPV4).matchIPProtocol(IPv4.PROTOCOL_TCP)
-    .build();
-
-  
-```
+## Converting packets into flows
+In order to convert TCP packets into flows with features that we will later use for 
 
 ## Detecting malicious flows
 TODO
