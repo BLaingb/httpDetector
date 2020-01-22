@@ -17,13 +17,15 @@ This repository contains an ONOS application that is focused to detect and mitig
 ## Processing packets 
 In order to process and analyze the packets from the network traffic, we will use a [packet processor](http://api.onosproject.org/1.7.0/org/onosproject/net/packet/PacketProcessor.html). We will be based on an ONOS sample application from the onos [repository](https://wiki.onosproject.org/display/ONOS/Building+the+ONOS+Sample+Apps), to clone it run `git clone https://gerrit.onosproject.org/onos-app-samples`. In that repository we will use the **oneping** sample app, which process a packet and just allow one ping per minute.
 
-When we have the packet processor ready, we need to convert the packets into flows so we can pass them through our classifier. This feature extraction technique is based on the flowtbag tool written in go, you can check it [here](https://github.com/DanielArndt/flowtbag). All the files under the _mx.itesm.httpddosdetector.flow.parser_ package are a translation from the go files on the _flowtbag_ repository that are required to process the packets and convert them into flows.
-
-## Converting packets into flows
-In order to convert TCP packets into flows with features that we will later use for 
+### Converting packets into flows
+Afte we have the packet processor ready, we need to convert the packets into flows so we can pass them through our classifier. To convert them we use the [FlowData](./flow/parser/FlowData.java) class to append each packet to its corresponding flow. 
 
 ## Detecting malicious flows
-TODO
+When a flow is closed, we can pass it through our classifiers, in this implementation we will use a random forest classifier. 
+
+We have previously trained the model and you can find it in the resources folder [here](./src/main/resources/models/random_forest_bin.json). The classifier has to previously load the model with the _RandomForestClassifier.Load_ method, and after that we can use the _RandomForestClassifier.Classify_ to obtain the predicted class of the provided flow.
+
+This is done on the HttpDdosDetector [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L131-L41)
 
 ## Mitigating attacks
 You can access the onos api docs through the following url http://192.168.99.124:8181/onos/v1/docs/ in there check the flow api to access the endpoints that will add or delete flow rules. For more info on flow rules check the wiki https://wiki.onosproject.org/display/ONOS/Flow+Rules. 
