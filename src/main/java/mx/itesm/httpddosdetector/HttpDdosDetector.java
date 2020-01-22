@@ -67,7 +67,7 @@ public class HttpDdosDetector {
 
     /** Properties. */
     private static Logger log = LoggerFactory.getLogger(HttpDdosDetector.class);
-    private static final int PRIORITY = 128;
+    private static final int PROCESSOR_PRIORITY = 128;
     private static final int ATTACK_TIMEOUT = 90; // seconds
     private static final int ATTACK_THRESHOLD = 1; // attacks per ATTACK_TIMEOUT to be considered an attack
     private static final int FLOW_RULE_TIME = 5 * 60; // 5 minutes
@@ -104,7 +104,7 @@ public class HttpDdosDetector {
 
         // Adds packet processor with CONTROL priority which is a high priority 
         // that allows to control traffic. 
-        packetService.addProcessor(packetProcessor, PRIORITY);
+        packetService.addProcessor(packetProcessor, PROCESSOR_PRIORITY);
         packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
                                      Optional.empty());
         // TODO(abrahamtorres): Check if the performance of the controller is affected by using 
