@@ -60,7 +60,7 @@ public class FlowApi {
     }
 
     // Post a flow rule to the flow api
-    public ApiResponse postFlow(ObjectNode flow) {
+    public ApiResponse postFlowRule(ObjectNode flow) {
         Client client = ClientBuilder.newClient();
         client.property(ClientProperties.FOLLOW_REDIRECTS, true);
     

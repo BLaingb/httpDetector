@@ -293,7 +293,7 @@ public class HttpDdosDetector {
 
         flows.add(flow);
         
-        return this.flowApi.postFlow(flowRequest);
+        return this.flowApi.postFlowRule(flowRequest);
     }
 
     // Indicates whether the specified packet corresponds to TCP packet.
