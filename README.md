@@ -31,4 +31,4 @@ This is done on the HttpDdosDetector [here](./src/main/java/mx/itesm/httpddosdet
 
 ## Mitigating attacks
 
-To mitigate we will use the [FlowApi](./src/main/java/mx/itesm/api/flow/FlowApi.java)_.postFlowRule_ method. The mitigation is done on the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L204-L247)
+To mitigate we will use the [FlowApi.postFlowRule](./src/main/java/mx/itesm/api/flow/FlowApi.java#L63) method. The mitigation is done on the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L204-L247)
