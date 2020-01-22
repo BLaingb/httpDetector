@@ -20,18 +20,18 @@ In order to process and analyze the packets from the network traffic, we will us
 ### Converting packets into flows
 Afte we have the packet processor ready, we need to convert the packets into flows so we can pass them through our classifier. To convert them we use the [FlowData](./flow/parser/FlowData.java) class to append each packet to its corresponding flow. 
 
-This is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L139-L174)
+This is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L147-L182)
 
 ## Detecting malicious flows
 When a flow is closed, we can pass it through our classifiers, in this implementation we will use a random forest classifier. 
 
 We have previously trained the model and you can find it in the resources folder [here](./src/main/resources/models/random_forest_bin.json). The classifier has to previously load the model with the _RandomForestClassifier.Load_ method, and after that we can use the _RandomForestClassifier.Classify_ to obtain the predicted class of the provided flow.
 
-This is done in the HttpDdosDetector [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L176-L206)
+This is done in the HttpDdosDetector [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L184-L214)
 
 ## Mitigating attacks
 
-To mitigate we will use the [FlowApi.postFlowRule](./src/main/java/mx/itesm/api/flow/FlowApi.java#L63) method. The mitigation is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L208-L251). 
+To mitigate we will use the [FlowApi.postFlowRule](./src/main/java/mx/itesm/api/flow/FlowApi.java#L63) method. The mitigation is done in the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L216-L259). 
 
 ## Configuration
 There are some constants in the application that change the performance of the http ddos detector, which are:

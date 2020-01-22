@@ -100,7 +100,9 @@ public class HttpDdosDetector {
     private Classifier classifier;
     private FlowApi flowApi;
 
-    // Runs when the application is started, after activation or reinstall
+    /**
+     * Runs when the application is started, after activation or reinstall
+     */
     @Activate
     protected void activate() {
         // Register application to get an app id
@@ -124,7 +126,9 @@ public class HttpDdosDetector {
         log.info("HTTP DDoS detector started");
     }
 
-    // Runs on when application is stopped, when unistalled or deactivated
+    /**
+     * Runs on when application is stopped, when unistalled or deactivated
+     */
     @Deactivate
     protected void deactivate() {
         packetService.removeProcessor(packetProcessor);
@@ -134,7 +138,11 @@ public class HttpDdosDetector {
         log.info("HTTP DDoS detector stopped");
     }
 
-    // Processes the provided TCP packet
+    /**
+     * Processes the provided TCP packet
+     * @param context packet context
+     * @param eth ethernet packet
+     */
     private void processPacket(PacketContext context, Ethernet eth) {
         // Get identifiers of the packet
         DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
@@ -259,7 +267,12 @@ public class HttpDdosDetector {
         // TODO(abrahamtorres): Remove expired flow rules
     }
 
-    // Add flow rule to block an attacker
+    /**
+     * Add flow rule to block an attacker
+     * @param deviceId Device that will receive the flow rule
+     * @param attackKey Identifier of the attack
+     * @return Flow api response
+     */
     private ApiResponse addFlowRule(DeviceId deviceId, AttackKey attackKey){
         // Build flow rule object
         ObjectNode flowRequest = new ObjectNode(JsonNodeFactory.instance);
@@ -300,13 +313,19 @@ public class HttpDdosDetector {
         return this.flowApi.postFlowRule(flowRequest);
     }
 
-    // Indicates whether the specified packet corresponds to TCP packet.
+    /**
+     * Indicates whether the specified packet corresponds to TCP packet.
+     * @param eth packet to be checked
+     * @return true if the packet is TCP
+     */
     private boolean isTcpPacket(Ethernet eth) {
         return eth.getEtherType() == Ethernet.TYPE_IPV4 &&
                 ((IPv4) eth.getPayload()).getProtocol() == IPv4.PROTOCOL_TCP;
     }
 
-    // Packet processor implementation, will call processPacket() for every TCP packet received
+    /**
+     * Packet processor implementation, will call processPacket() for every TCP packet received
+     */
     private class TCPPacketProcessor implements PacketProcessor {
         @Override
         public void process(PacketContext context) {
