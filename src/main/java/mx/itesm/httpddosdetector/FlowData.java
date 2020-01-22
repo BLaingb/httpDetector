@@ -432,5 +432,13 @@ public class FlowData {
         }
         return blast;
     }
+
+    @Override   
+    public boolean equals(Object obj) {
+        if (!(obj instanceof FlowData))
+            return false;
+        FlowData ref = (FlowData) obj;
+        return this.forwardKey.equals(ref.forwardKey) && this.backwadKey.equals(ref.backwadKey);
+    }
     
 }

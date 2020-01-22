@@ -13,17 +13,17 @@ public class AttackKey {
  
     @Override   
     public boolean equals(Object obj) {
-       if (!(obj instanceof AttackKey))
-         return false;
-       AttackKey ref = (AttackKey) obj;
-       return this.srcip.equals(ref.srcip) && 
-           this.dstip.equals(ref.dstip) &&
-           this.dstport.equals(ref.dstport);
+        if (!(obj instanceof AttackKey))
+            return false;
+        AttackKey ref = (AttackKey) obj;
+        return this.srcip.equals(ref.srcip) &&
+            this.dstip.equals(ref.dstip) &&
+            this.dstport.equals(ref.dstport);
     }
  
-     @Override
-     public int hashCode() {
-         return srcip.hashCode() ^ dstip.hashCode() ^ dstport.hashCode();
-     }
+    @Override
+    public int hashCode() {
+        return srcip.hashCode() ^ dstip.hashCode() ^ dstport.hashCode();
+    }
  
  }

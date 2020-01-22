@@ -35,5 +35,9 @@ public class FlowKey {
     public AttackKey toAttackKey(){
         return new AttackKey(srcip, dstip, dstport);
     }
+
+    public DistributedAttackKey toDistributedAttackKey(){
+        return new DistributedAttackKey(dstip, dstport);
+    }
  
  }
