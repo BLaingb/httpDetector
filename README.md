@@ -20,7 +20,7 @@ In order to process and analyze the packets from the network traffic, we will us
 ### Converting packets into flows
 Afte we have the packet processor ready, we need to convert the packets into flows so we can pass them through our classifier. To convert them we use the [FlowData](./flow/parser/FlowData.java) class to append each packet to its corresponding flow. 
 
-This is done on the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L135-L70)
+This is done on the HttpDdosDetector class in [here](./src/main/java/mx/itesm/httpddosdetector/HttpDdosDetector.java#L135-L170)
 
 ## Detecting malicious flows
 When a flow is closed, we can pass it through our classifiers, in this implementation we will use a random forest classifier. 
