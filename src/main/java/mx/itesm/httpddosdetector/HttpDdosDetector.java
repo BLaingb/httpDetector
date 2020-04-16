@@ -15,6 +15,7 @@
  */
 package mx.itesm.httpddosdetector;
 
+import mx.itesm.httpddosdetector.classifier.randomtree.RandomTreeBinClassifier;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IPv4;
 import org.onlab.packet.IpPrefix;
@@ -37,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mx.itesm.httpddosdetector.classifier.Classifier;
-import mx.itesm.httpddosdetector.classifier.randomforest.RandomForestBinClassifier;
 import mx.itesm.httpddosdetector.flow.parser.FlowData;
 import mx.itesm.httpddosdetector.keys.AttackKey;
 import mx.itesm.httpddosdetector.keys.DistributedAttackKey;
@@ -117,7 +117,8 @@ public class HttpDdosDetector {
         // CONTROL priority, if it affects then change it to REACTIVE priority
 
         // Initialize the classifier and load the model to be used
-        classifier = new RandomForestBinClassifier();
+        // classifier = new RandomForestBinClassifier();
+        classifier = new RandomTreeBinClassifier();
         //classifier.Load("/models/random_forest_bin.json");
         classifier.Load("/models/randomTree.appddos.model");
 
@@ -185,7 +186,9 @@ public class HttpDdosDetector {
         // If connection is closed
         if(f.IsClosed()){
             // Pass through classifier
-            RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
+            // RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
+            RandomTreeBinClassifier.Class flowClass = RandomTreeBinClassifier.Class.valueOf(classifier.Classify(f));
+
             // React depending on the result
             switch(flowClass){
                 case NORMAL:
