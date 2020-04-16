@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright 2019-present Open Networking Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,15 +35,24 @@ public class RandomForestBinClassifier extends Classifier {
         /**
          * Indicates if there was an error while classifying the flow
          */
-        ERROR(-1),
+        ERROR("error"),
+        
         /**
          * Indicates if the flow is part of normal network traffic
          */
-        NORMAL(0),
+        NORMAL("normal"),
+
         /**
          * Indicates if the flow is part of a http ddos attack
          */
-        ATTACK(1);
+        SLOWBODY2("slowbody2");
+        SLOWREAD("slowread");
+        DDOSSIM("ddossim");
+        SLOWHEADERS("slowheaders");
+        GOLDENEYE("goldeneye");
+        RUDY("rudy");
+        HULK("hulk");
+        SLOWLORIS("slowloris");
 
         private final int value;
 
@@ -57,10 +66,24 @@ public class RandomForestBinClassifier extends Classifier {
 
         public static Class valueOf(int value) {
             switch(value){
-                case 0:
+                case "normal":
                     return Class.NORMAL;
-                case 1:
-                    return Class.ATTACK;
+                case "slowbody2":
+                    return Class.SLOWBODY2;
+                case "slowread":
+                    return Class.SLOWREAD;
+                case "ddossim":
+                    return Class.DDOSSIM;
+                case "slowheaders":
+                    return Class.SLOWHEADERS;
+                case "goldeneye":
+                    return Class.GOLDENEYE;
+                case "rudy":
+                    return Class.RUDY;
+                case "hulk":
+                    return Class.HULK;
+                case "slowloris":
+                    return Class.SLOWLORIS
                 default:
                     return Class.ERROR;
             }

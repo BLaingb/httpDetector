@@ -25,15 +25,24 @@ public class Classifier {
         /**
          * Indicates if there was an error while classifying the flow
          */
-        ERROR(-1),
+        ERROR("error"),
+        
         /**
          * Indicates if the flow is part of normal network traffic
          */
-        NORMAL(0),
+        NORMAL("normal"),
+
         /**
          * Indicates if the flow is part of a http ddos attack
          */
-        ATTACK(1);
+        SLOWBODY2("slowbody2");
+        SLOWREAD("slowread");
+        DDOSSIM("ddossim");
+        SLOWHEADERS("slowheaders");
+        GOLDENEYE("goldeneye");
+        RUDY("rudy");
+        HULK("hulk");
+        SLOWLORIS("slowloris");
 
         private final int value;
 
