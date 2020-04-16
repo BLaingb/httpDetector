@@ -151,9 +151,11 @@ public class RandomTreeBinClassifier extends Classifier {
             return Class.ERROR.value;
         }
 
+        log.debug("Building instance for classification.");
         Instance instance = buildInstance(f);
 
         try {
+            log.debug("Calling classifyInstance()...");
             Double doubleClass = tree.classifyInstance(instance);
             Class classifiedAs = Class.valueOf(doubleClass.intValue());
 

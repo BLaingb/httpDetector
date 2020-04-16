@@ -187,6 +187,7 @@ public class HttpDdosDetector {
         if(f.IsClosed()){
             // Pass through classifier
             // RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
+            log.debug("Calling classify method.");
             RandomTreeBinClassifier.Class flowClass = RandomTreeBinClassifier.Class.valueOf(classifier.Classify(f));
 
             // React depending on the result
