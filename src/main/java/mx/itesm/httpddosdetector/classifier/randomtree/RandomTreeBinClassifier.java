@@ -154,8 +154,12 @@ public class RandomTreeBinClassifier extends Classifier {
         Instance instance = buildInstance(f);
 
         try {
-            Double classifiedAs = tree.classifyInstance(instance);
-            return classifiedAs.intValue();
+            Double doubleClass = tree.classifyInstance(instance);
+            Class classifiedAs = Class.valueOf(doubleClass.intValue());
+
+            log.debug("Flow classified as " + classifiedAs);
+
+            return classifiedAs.value;
         } catch(Exception e) {
             log.error("");
             log.error(e.getMessage());
