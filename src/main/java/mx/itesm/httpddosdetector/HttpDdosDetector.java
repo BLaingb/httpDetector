@@ -118,7 +118,8 @@ public class HttpDdosDetector {
 
         // Initialize the classifier and load the model to be used
         classifier = new RandomForestBinClassifier();
-        classifier.Load("/models/random_forest_bin.json");
+        //classifier.Load("/models/random_forest_bin.json");
+        classifier.Load("/models/randomTree.appddos.model");
 
         // Initialize the flow api to communicate with the rest api
         flowApi = new FlowApi(appId);
