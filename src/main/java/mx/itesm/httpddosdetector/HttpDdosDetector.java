@@ -105,33 +105,38 @@ public class HttpDdosDetector {
      */
     @Activate
     protected void activate() {
-        log.debug("HTTP DDoS detector starting...")
+        try {
+            log.debug("HTTP DDoS detector starting...");
 
-        // Register application to get an app id
-        appId = coreService.registerApplication("mx.itesm.httpddosdetector", () -> log.info("Periscope down."));
-        log.debug("Sucessfully got appId: {}", appId);
+            // Register application to get an app id
+            appId = coreService.registerApplication("mx.itesm.httpddosdetector", () -> log.info("Periscope down."));
+            log.debug("Sucessfully got appId: {}", appId);
 
-        // Adds packet processor with CONTROL priority which is a high priority 
-        // that allows to control traffic. 
-        log.debug('Adding processor...');
-        packetService.addProcessor(packetProcessor, PROCESSOR_PRIORITY);
-        log.debug('Requesting packets...');
-        packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
-                                     Optional.empty());
+            // Adds packet processor with CONTROL priority which is a high priority 
+            // that allows to control traffic. 
+            log.debug('Adding processor...');
+            packetService.addProcessor(packetProcessor, PROCESSOR_PRIORITY);
+            log.debug('Requesting packets...');
+            packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
+                                        Optional.empty());
 
-        // TODO(abrahamtorres): Check if the performance of the controller is affected by using 
-        // CONTROL priority, if it affects then change it to REACTIVE priority
+            // TODO(abrahamtorres): Check if the performance of the controller is affected by using 
+            // CONTROL priority, if it affects then change it to REACTIVE priority
 
-        // Initialize the classifier and load the model to be used
-        log.debug('Building RandomTreeBinClassifier...');
-        classifier = new RandomTreeBinClassifier();
-        classifier.Load("/models/randomTree.appddos.model");
+            // Initialize the classifier and load the model to be used
+            log.debug('Building RandomTreeBinClassifier...');
+            classifier = new RandomTreeBinClassifier();
+            classifier.Load("/models/randomTree.appddos.model");
 
-        // Initialize the flow api to communicate with the rest api
-        flowApi = new FlowApi(appId);
-        log.debug('Flow API Initialized');
+            // Initialize the flow api to communicate with the rest api
+            flowApi = new FlowApi(appId);
+            log.debug('Flow API Initialized');
 
-        log.info("HTTP DDoS detector started");
+            log.info("HTTP DDoS detector started");
+        } catch (Exception e) {
+            log.error('Exception thrown at activate()');
+            log.error(e.getMessage());
+        }
     }
 
     /**
@@ -139,12 +144,19 @@ public class HttpDdosDetector {
      */
     @Deactivate
     protected void deactivate() {
-        log.debug('HTTP DDoS detector stopping...');
-        packetService.removeProcessor(packetProcessor);
-        flows.clear();
-        blockedAttacks.clear();
-        attackFlows.clear();
-        log.info("HTTP DDoS detector stopped");
+        try {
+            log.debug('HTTP DDoS detector stopping...');
+            
+            packetService.removeProcessor(packetProcessor);
+            flows.clear();
+            blockedAttacks.clear();
+            attackFlows.clear();
+            
+            log.info("HTTP DDoS detector stopped");
+        } catch (Exception e) {
+            log.error('Exception thrown at deactivate()');
+            log.error(e.getMessage());
+        }
     }
 
     /**
@@ -153,146 +165,152 @@ public class HttpDdosDetector {
      * @param eth ethernet packet
      */
     private void processPacket(PacketContext context, Ethernet eth) {
-        log.debug('Processing packet...');
-        // Get identifiers of the packet
-        DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
-        IPv4 ipv4 = (IPv4) eth.getPayload();
-        int srcip = ipv4.getSourceAddress();
-        int dstip = ipv4.getDestinationAddress();
-        byte proto = ipv4.getProtocol();
-        TCP tcp = (TCP) ipv4.getPayload();
-        int srcport = tcp.getSourcePort();
-        int dstport = tcp.getDestinationPort();
-
-        // Calculate forward and backward keys
-        FlowKey forwardKey = new FlowKey(srcip, srcport, dstip, dstport, proto);
-        FlowKey backwardKey = new FlowKey(dstip, dstport, srcip, srcport, proto);
-        FlowData f;
-        
-        // Check if flow is stored
-        if(flows.containsKey(forwardKey) || flows.containsKey(backwardKey)){
-            // Get corresponding flow and update it
-            if(flows.containsKey(forwardKey)){
-                f = flows.get(forwardKey);
-            }else{
-                f = flows.get(backwardKey);
-            }
-            f.Add(eth, srcip);
-            // Calling export will generate a log of the updated flow features
-            f.Export();
-
-            // log.info("Updating flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
-        } else {
-            // Add new flow
-            f = new FlowData(srcip, srcport, dstip, dstport, proto, eth);
-            // Include forward and backward keys
-            flows.put(forwardKey, f);
-            flows.put(backwardKey, f);
-            // log.info("Added new flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
-        }
-
-        // If connection is closed
-        if(f.IsClosed()){
-            // Pass through classifier
-            log.debug("Calling classify method.");
-            RandomTreeBinClassifier.Class flowClass = RandomTreeBinClassifier.Class.valueOf(classifier.Classify(f));
+        try {
+            log.debug('Processing packet...');
             
-            // React depending on the result
-            switch(flowClass){
-                case NORMAL:
-                    log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
-                    break;
-                case SLOWBODY2:
-                case SLOWREAD:
-                case DDOSSIM:
-                case SLOWHEADERS:
-                case GOLDENEYE:
-                case RUDY:
-                case HULK:
-                case SLOWLORIS:
-                    log.warn(
-                        "Detected {} attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", 
-                        flowClass, 
-                        f.srcip, 
-                        f.srcport, 
-                        f.dstip, 
-                        f.dstport, 
-                        f.proto
-                    );
-                    // Add attack to the proper queue
-                    LinkedList<FlowData> attackFlowsQueue;
-                    DistributedAttackKey k = f.forwardKey.toDistributedAttackKey();
-                    if(attackFlows.containsKey(k)){
-                        attackFlowsQueue = attackFlows.get(k);
-                    }else{
-                        attackFlowsQueue = new LinkedList<FlowData>();
-                        attackFlows.put(k, attackFlowsQueue);
-                    }
-                    attackFlowsQueue.add(f);
-                    break;
-                case ERROR:
-                    log.error("Error predicting flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
-                    break;
-            }
-            // Delete from flows, since it is closed we don't expect any other packet from this flow
-            flows.remove(forwardKey);
-            flows.remove(backwardKey);
-            f = null;
-        }
+            // Get identifiers of the packet
+            DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
+            IPv4 ipv4 = (IPv4) eth.getPayload();
+            int srcip = ipv4.getSourceAddress();
+            int dstip = ipv4.getDestinationAddress();
+            byte proto = ipv4.getProtocol();
+            TCP tcp = (TCP) ipv4.getPayload();
+            int srcport = tcp.getSourcePort();
+            int dstport = tcp.getDestinationPort();
 
-        long currTimeInSecs = System.currentTimeMillis() / 1000;
-        attackFlows.forEach((distAttackKey, attackQueue)->{
-            // Remove expired attack flows
-            while(attackQueue.peek().flast + ATTACK_TIMEOUT < currTimeInSecs){
-                attackQueue.remove();
-            }; 
-
-            // Check if host is under attack
-            if(attackQueue.size() > ATTACK_THRESHOLD){
-                // Check if attacker is not already blocked
-                for (FlowData attack : attackQueue) {
-                    AttackKey attackKey = attack.forwardKey.toAttackKey();
-                    // If attacker isn't already blocked
-                    if(!blockedAttacks.containsKey(attackKey)){
-                        // Add flow rule to block attack
-                        ApiResponse res = addFlowRule(deviceId, attackKey);
-                        if(!res.result){
-                            log.warn("Failed to add flow rule, Key(srcip: {}, dstip: {}, dstport: {})", attack.srcip, attack.dstip, attack.dstport);
-                            continue;
-                        }
-                        // Read response from the api
-                        String body = res.response.readEntity(String.class);
-                        JsonNode apiRes = null;
-                        try {
-                            ObjectMapper mapper = new ObjectMapper();
-                            apiRes = mapper.readTree(body);
-                        } catch (Exception e){
-                            e.printStackTrace();
-                        }
-                        if(apiRes == null){
-                            log.warn("Failed to add flow rule, Key(srcip: {}, dstip: {}, dstport: {})", attack.srcip, attack.dstip, attack.dstport);
-                            continue;
-                        }
-
-                        // Retrieve flowId and deviceId from the response, so we can later delete the flow rule
-                        JsonNode newFlowRule = apiRes.get("flows").get(0);
-                        FlowRuleId rule = new FlowRuleId(newFlowRule.get("deviceId").asText(), newFlowRule.get("flowId").asText());
-                        blockedAttacks.put(attackKey, rule);
-                        log.info("Added flow rule to block attack, Key(srcip: {}, dstip: {}, dstport: {})", attack.srcip, attack.dstip, attack.dstport);
-                    }
-                    // Attacker is already blocked, no need to store the attacks
-                    attackQueue.remove(attack);
+            // Calculate forward and backward keys
+            FlowKey forwardKey = new FlowKey(srcip, srcport, dstip, dstport, proto);
+            FlowKey backwardKey = new FlowKey(dstip, dstport, srcip, srcport, proto);
+            FlowData f;
+            
+            // Check if flow is stored
+            if(flows.containsKey(forwardKey) || flows.containsKey(backwardKey)){
+                // Get corresponding flow and update it
+                if(flows.containsKey(forwardKey)){
+                    f = flows.get(forwardKey);
+                }else{
+                    f = flows.get(backwardKey);
                 }
+                f.Add(eth, srcip);
+                // Calling export will generate a log of the updated flow features
+                f.Export();
+
+                // log.info("Updating flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
+            } else {
+                // Add new flow
+                f = new FlowData(srcip, srcport, dstip, dstport, proto, eth);
+                // Include forward and backward keys
+                flows.put(forwardKey, f);
+                flows.put(backwardKey, f);
+                // log.info("Added new flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", srcip, srcport, dstip, dstport, proto);
             }
 
-            // Remove empty attack queues
-            if(attackQueue.size() == 0){
-                attackFlows.remove(distAttackKey);
+            // If connection is closed
+            if(f.IsClosed()){
+                // Pass through classifier
+                log.debug("Calling classify method.");
+                RandomTreeBinClassifier.Class flowClass = RandomTreeBinClassifier.Class.valueOf(classifier.Classify(f));
+                
+                // React depending on the result
+                switch(flowClass){
+                    case NORMAL:
+                        log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
+                        break;
+                    case SLOWBODY2:
+                    case SLOWREAD:
+                    case DDOSSIM:
+                    case SLOWHEADERS:
+                    case GOLDENEYE:
+                    case RUDY:
+                    case HULK:
+                    case SLOWLORIS:
+                        log.warn(
+                            "Detected {} attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", 
+                            flowClass, 
+                            f.srcip, 
+                            f.srcport, 
+                            f.dstip, 
+                            f.dstport, 
+                            f.proto
+                        );
+                        // Add attack to the proper queue
+                        LinkedList<FlowData> attackFlowsQueue;
+                        DistributedAttackKey k = f.forwardKey.toDistributedAttackKey();
+                        if(attackFlows.containsKey(k)){
+                            attackFlowsQueue = attackFlows.get(k);
+                        }else{
+                            attackFlowsQueue = new LinkedList<FlowData>();
+                            attackFlows.put(k, attackFlowsQueue);
+                        }
+                        attackFlowsQueue.add(f);
+                        break;
+                    case ERROR:
+                        log.error("Error predicting flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
+                        break;
+                }
+                // Delete from flows, since it is closed we don't expect any other packet from this flow
+                flows.remove(forwardKey);
+                flows.remove(backwardKey);
+                f = null;
             }
-        });
 
-        // TODO(abrahamtorres): Remove expired flow rules
-        log.debug('Finished processing packet.');
+            long currTimeInSecs = System.currentTimeMillis() / 1000;
+            attackFlows.forEach((distAttackKey, attackQueue)->{
+                // Remove expired attack flows
+                while(attackQueue.peek().flast + ATTACK_TIMEOUT < currTimeInSecs){
+                    attackQueue.remove();
+                }; 
+
+                // Check if host is under attack
+                if(attackQueue.size() > ATTACK_THRESHOLD){
+                    // Check if attacker is not already blocked
+                    for (FlowData attack : attackQueue) {
+                        AttackKey attackKey = attack.forwardKey.toAttackKey();
+                        // If attacker isn't already blocked
+                        if(!blockedAttacks.containsKey(attackKey)){
+                            // Add flow rule to block attack
+                            ApiResponse res = addFlowRule(deviceId, attackKey);
+                            if(!res.result){
+                                log.warn("Failed to add flow rule, Key(srcip: {}, dstip: {}, dstport: {})", attack.srcip, attack.dstip, attack.dstport);
+                                continue;
+                            }
+                            // Read response from the api
+                            String body = res.response.readEntity(String.class);
+                            JsonNode apiRes = null;
+                            try {
+                                ObjectMapper mapper = new ObjectMapper();
+                                apiRes = mapper.readTree(body);
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            if(apiRes == null){
+                                log.warn("Failed to add flow rule, Key(srcip: {}, dstip: {}, dstport: {})", attack.srcip, attack.dstip, attack.dstport);
+                                continue;
+                            }
+
+                            // Retrieve flowId and deviceId from the response, so we can later delete the flow rule
+                            JsonNode newFlowRule = apiRes.get("flows").get(0);
+                            FlowRuleId rule = new FlowRuleId(newFlowRule.get("deviceId").asText(), newFlowRule.get("flowId").asText());
+                            blockedAttacks.put(attackKey, rule);
+                            log.info("Added flow rule to block attack, Key(srcip: {}, dstip: {}, dstport: {})", attack.srcip, attack.dstip, attack.dstport);
+                        }
+                        // Attacker is already blocked, no need to store the attacks
+                        attackQueue.remove(attack);
+                    }
+                }
+
+                // Remove empty attack queues
+                if(attackQueue.size() == 0){
+                    attackFlows.remove(distAttackKey);
+                }
+            });
+
+            // TODO(abrahamtorres): Remove expired flow rules
+            log.debug('Finished processing packet.');
+        } catch (Exception e) {
+            log.error('Exception thrown at processPacket()');
+            log.error(e.getMessage());
+        }        
     }
 
     /**
