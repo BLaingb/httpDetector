@@ -105,23 +105,31 @@ public class HttpDdosDetector {
      */
     @Activate
     protected void activate() {
+        log.debug("HTTP DDoS detector starting...")
+
         // Register application to get an app id
         appId = coreService.registerApplication("mx.itesm.httpddosdetector", () -> log.info("Periscope down."));
+        log.debug("Sucessfully got appId: {}", appId);
 
         // Adds packet processor with CONTROL priority which is a high priority 
         // that allows to control traffic. 
+        log.debug('Adding processor...');
         packetService.addProcessor(packetProcessor, PROCESSOR_PRIORITY);
+        log.debug('Requesting packets...');
         packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
                                      Optional.empty());
+
         // TODO(abrahamtorres): Check if the performance of the controller is affected by using 
         // CONTROL priority, if it affects then change it to REACTIVE priority
 
         // Initialize the classifier and load the model to be used
+        log.debug('Building RandomTreeBinClassifier...');
         classifier = new RandomTreeBinClassifier();
         classifier.Load("/models/randomTree.appddos.model");
 
         // Initialize the flow api to communicate with the rest api
         flowApi = new FlowApi(appId);
+        log.debug('Flow API Initialized');
 
         log.info("HTTP DDoS detector started");
     }
@@ -131,6 +139,7 @@ public class HttpDdosDetector {
      */
     @Deactivate
     protected void deactivate() {
+        log.debug('HTTP DDoS detector stopping...');
         packetService.removeProcessor(packetProcessor);
         flows.clear();
         blockedAttacks.clear();
@@ -144,6 +153,7 @@ public class HttpDdosDetector {
      * @param eth ethernet packet
      */
     private void processPacket(PacketContext context, Ethernet eth) {
+        log.debug('Processing packet...');
         // Get identifiers of the packet
         DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
         IPv4 ipv4 = (IPv4) eth.getPayload();
@@ -282,6 +292,7 @@ public class HttpDdosDetector {
         });
 
         // TODO(abrahamtorres): Remove expired flow rules
+        log.debug('Finished processing packet.');
     }
 
     /**

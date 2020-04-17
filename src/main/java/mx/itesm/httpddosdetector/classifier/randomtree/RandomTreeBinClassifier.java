@@ -143,9 +143,10 @@ public class RandomTreeBinClassifier extends Classifier {
     private RandomTree tree;
 
     public void Load(String filepath) {
-       RandomTreeCodec codec = new RandomTreeCodec();
-       tree = codec.decode(filepath);
-       super.Load(filepath);
+        log.debug('Constructing codec...');
+        RandomTreeCodec codec = new RandomTreeCodec();
+        tree = codec.decode(filepath);
+        super.Load(filepath);
     }
 
     /**
@@ -159,16 +160,16 @@ public class RandomTreeBinClassifier extends Classifier {
         }
 
         log.debug("Building instance for classification.");
-       Instance instance = buildInstance(f);
+        Instance instance = buildInstance(f);
 
         try {
             log.debug("Calling classifyInstance()...");
-           Double doubleClass = tree.classifyInstance(instance);
-           Class classifiedAs = Class.valueOf(doubleClass.intValue());
+            Double doubleClass = tree.classifyInstance(instance);
+            Class classifiedAs = Class.valueOf(doubleClass.intValue());
 
-           log.debug("Flow classified as " + classifiedAs);
+            log.debug("Flow classified as " + classifiedAs);
 
-           return classifiedAs.value;
+            return classifiedAs.value;
         } catch(Exception e) {
             log.error("Error while trying to classify flow.");
             log.error(e.getMessage());
