@@ -136,10 +136,9 @@ public class RandomTreeBinClassifier extends Classifier {
     private RandomTree tree;
 
     public void Load(String filepath) {
-        // TODO(epicLevi): Remove debug comments Tier 2
-//        RandomTreeCodec codec = new RandomTreeCodec();
-//        tree = codec.decode(filepath);
-//        super.Load(filepath);
+        RandomTreeCodec codec = new RandomTreeCodec();
+        tree = codec.decode(filepath);
+        super.Load(filepath);
     }
 
     /**
@@ -153,8 +152,7 @@ public class RandomTreeBinClassifier extends Classifier {
         }
 
         log.debug("Building instance for classification.");
-        // TODO(epicLevi): Remove debug comments Tier 4
-//        Instance instance = buildInstance(f);
+        Instance instance = buildInstance(f);
 
         try {
             log.debug("Calling classifyInstance()...");
@@ -174,51 +172,49 @@ public class RandomTreeBinClassifier extends Classifier {
         return Class.ERROR.value;
     }
 
-    // TODO(epicLevi): Remove debug comments Tier 4
-//    private Instance buildInstance(FlowData f) {
-    private void buildInstance(FlowData f) {
+    private Instance buildInstance(FlowData f) {
         /**
          * Create 40 empty attributes.
          */
-        // TODO(epicLevi): Remove debug comments Tier 3
-//        Attribute total_fpackets = new Attribute("total_fpackets");
-//        Attribute total_fvolume = new Attribute("total_fvolume");
-//        Attribute total_bpackets = new Attribute("total_bpackets");
-//        Attribute total_bvolume = new Attribute("total_bvolume");
-//        Attribute min_fpktl = new Attribute("min_fpktl");
-//        Attribute mean_fpktl = new Attribute("mean_fpktl");
-//        Attribute max_fpktl = new Attribute("max_fpktl");
-//        Attribute std_fpktl = new Attribute("std_fpktl");
-//        Attribute min_bpktl = new Attribute("min_bpktl");
-//        Attribute mean_bpktl = new Attribute("mean_bpktl");
-//        Attribute max_bpktl = new Attribute("max_bpktl");
-//        Attribute std_bpktl = new Attribute("std_bpktl");
-//        Attribute min_fiat = new Attribute("min_fiat");
-//        Attribute mean_fiat = new Attribute("mean_fiat");
-//        Attribute max_fiat = new Attribute("max_fiat");
-//        Attribute std_fiat = new Attribute("std_fiat");
-//        Attribute min_biat = new Attribute("min_biat");
-//        Attribute mean_biat = new Attribute("mean_biat");
-//        Attribute max_biat = new Attribute("max_biat");
-//        Attribute std_biat = new Attribute("std_biat");
-//        Attribute duration = new Attribute("duration");
-//        Attribute min_active = new Attribute("min_active");
-//        Attribute mean_active = new Attribute("mean_active");
-//        Attribute max_active = new Attribute("max_active");
-//        Attribute std_active = new Attribute("std_active");
-//        Attribute min_idle = new Attribute("min_idle");
-//        Attribute mean_idle = new Attribute("mean_idle");
-//        Attribute max_idle = new Attribute("max_idle");
-//        Attribute std_idle = new Attribute("std_idle");
-//        Attribute sflow_fpackets = new Attribute("sflow_fpackets");
-//        Attribute sflow_fbytes = new Attribute("sflow_fbytes");
-//        Attribute sflow_bpackets = new Attribute("sflow_bpackets");
-//        Attribute sflow_bbytes = new Attribute("sflow_bbytes");
-//        Attribute fpsh_cnt = new Attribute("fpsh_cnt");
-//        Attribute bpsh_cnt = new Attribute("bpsh_cnt");
-//        Attribute furg_cnt = new Attribute("furg_cnt");
-//        Attribute total_fhlen = new Attribute("total_fhlen");
-//        Attribute total_bhlen = new Attribute("total_bhlen");
+
+        Attribute total_fpackets = new Attribute("total_fpackets");
+        Attribute total_fvolume = new Attribute("total_fvolume");
+        Attribute total_bpackets = new Attribute("total_bpackets");
+        Attribute total_bvolume = new Attribute("total_bvolume");
+        Attribute min_fpktl = new Attribute("min_fpktl");
+        Attribute mean_fpktl = new Attribute("mean_fpktl");
+        Attribute max_fpktl = new Attribute("max_fpktl");
+        Attribute std_fpktl = new Attribute("std_fpktl");
+        Attribute min_bpktl = new Attribute("min_bpktl");
+        Attribute mean_bpktl = new Attribute("mean_bpktl");
+        Attribute max_bpktl = new Attribute("max_bpktl");
+        Attribute std_bpktl = new Attribute("std_bpktl");
+        Attribute min_fiat = new Attribute("min_fiat");
+        Attribute mean_fiat = new Attribute("mean_fiat");
+        Attribute max_fiat = new Attribute("max_fiat");
+        Attribute std_fiat = new Attribute("std_fiat");
+        Attribute min_biat = new Attribute("min_biat");
+        Attribute mean_biat = new Attribute("mean_biat");
+        Attribute max_biat = new Attribute("max_biat");
+        Attribute std_biat = new Attribute("std_biat");
+        Attribute duration = new Attribute("duration");
+        Attribute min_active = new Attribute("min_active");
+        Attribute mean_active = new Attribute("mean_active");
+        Attribute max_active = new Attribute("max_active");
+        Attribute std_active = new Attribute("std_active");
+        Attribute min_idle = new Attribute("min_idle");
+        Attribute mean_idle = new Attribute("mean_idle");
+        Attribute max_idle = new Attribute("max_idle");
+        Attribute std_idle = new Attribute("std_idle");
+        Attribute sflow_fpackets = new Attribute("sflow_fpackets");
+        Attribute sflow_fbytes = new Attribute("sflow_fbytes");
+        Attribute sflow_bpackets = new Attribute("sflow_bpackets");
+        Attribute sflow_bbytes = new Attribute("sflow_bbytes");
+        Attribute fpsh_cnt = new Attribute("fpsh_cnt");
+        Attribute bpsh_cnt = new Attribute("bpsh_cnt");
+        Attribute furg_cnt = new Attribute("furg_cnt");
+        Attribute total_fhlen = new Attribute("total_fhlen");
+        Attribute total_bhlen = new Attribute("total_bhlen");
 
         /**
          * Create empty instance that sets weight to one,
@@ -226,7 +222,7 @@ public class RandomTreeBinClassifier extends Classifier {
          * the dataset to null.
          */
         // TODO(epicLevi): Remove debug comments Tier 4
-//        Instance instance = new DenseInstance(40);
+        Instance instance = new DenseInstance(40);
 //
 //        instance.setValue(total_fpackets, f.f[TOTAL_FPACKETS].Get());
 //        instance.setValue(total_fvolume, f.f[TOTAL_FVOLUME].Get());
@@ -281,7 +277,7 @@ public class RandomTreeBinClassifier extends Classifier {
 //        instance.setValue(furg_cnt, f.f[FURG_CNT].Get());
 //        instance.setValue(total_fhlen, f.f[TOTAL_FHLEN].Get());
 //        instance.setValue(total_bhlen, f.f[TOTAL_BHLEN].Get());
-        // TODO(epicLevi): Remove debug comments Tier 4
-//        return instance;
+
+        return instance;
     }
 }
