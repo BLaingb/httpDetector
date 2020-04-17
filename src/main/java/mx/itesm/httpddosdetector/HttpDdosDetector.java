@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import mx.itesm.httpddosdetector.classifier.Classifier;
 import mx.itesm.httpddosdetector.classifier.randomtree.RandomTreeBinClassifier;
+import mx.itesm.httpddosdetector.classifier.randomforest.RandomForestBinClassifier;
 import mx.itesm.httpddosdetector.flow.parser.FlowData;
 import mx.itesm.httpddosdetector.keys.AttackKey;
 import mx.itesm.httpddosdetector.keys.DistributedAttackKey;
@@ -125,8 +126,10 @@ public class HttpDdosDetector {
 
             // Initialize the classifier and load the model to be used
             log.debug("Building RandomTreeBinClassifier...");
-            classifier = new RandomTreeBinClassifier();
-            classifier.Load("/models/randomTree.appddos.model");
+            // classifier = new RandomTreeBinClassifier();
+            // classifier.Load("/models/randomTree.appddos.model");
+            classifier = new RandomForestBinClassifier();
+            classifier.Load("/models/random_forest_bin.json");
 
             // Initialize the flow api to communicate with the rest api
             flowApi = new FlowApi(appId);
@@ -209,21 +212,23 @@ public class HttpDdosDetector {
             if(f.IsClosed()){
                 // Pass through classifier
                 log.debug("Calling classify method.");
-                RandomTreeBinClassifier.Class flowClass = RandomTreeBinClassifier.Class.valueOf(classifier.Classify(f));
+                // RandomTreeBinClassifier.Class flowClass = RandomTreeBinClassifier.Class.valueOf(classifier.Classify(f));
+                RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
                 
                 // React depending on the result
                 switch(flowClass){
                     case NORMAL:
                         log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
                         break;
-                    case SLOWBODY2:
-                    case SLOWREAD:
-                    case DDOSSIM:
-                    case SLOWHEADERS:
-                    case GOLDENEYE:
-                    case RUDY:
-                    case HULK:
-                    case SLOWLORIS:
+                    case ATTACK:
+                    // case SLOWBODY2:
+                    // case SLOWREAD:
+                    // case DDOSSIM:
+                    // case SLOWHEADERS:
+                    // case GOLDENEYE:
+                    // case RUDY:
+                    // case HULK:
+                    // case SLOWLORIS:
                         log.warn(
                             "Detected {} attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", 
                             flowClass, 
