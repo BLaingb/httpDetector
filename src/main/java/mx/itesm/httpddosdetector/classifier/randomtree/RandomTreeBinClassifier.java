@@ -144,12 +144,12 @@ public class RandomTreeBinClassifier extends Classifier {
 
     public void Load(String filepath) {
         try {
-            log.debug('Constructing codec...');
+            log.debug("Constructing codec...");
             RandomTreeCodec codec = new RandomTreeCodec();
             tree = codec.decode(filepath);
             super.Load(filepath);
         } catch (Exception e) {
-            log.error('Exception thrown at Load()');
+            log.error("Exception thrown at Load()");
             log.error(e.getMessage());
         }
     }
@@ -180,12 +180,12 @@ public class RandomTreeBinClassifier extends Classifier {
                 log.error("Error while trying to classify flow.");
                 log.error(e.getMessage());
             }
-
-            return Class.ERROR.value;
         } catch (Exception e) {
-            log.error('Exception thrown at Classify');
+            log.error("Exception thrown at Classify");
             log.error(e.getMessage());
         }
+
+        return Class.ERROR.value;
     }
 
    private Instance buildInstance(FlowData f) {
@@ -295,7 +295,7 @@ public class RandomTreeBinClassifier extends Classifier {
 
             return instance;
        } catch (Exception e) {
-           log.error('Exception thrown at buildInstance');
+           log.error("Exception thrown at buildInstance()");
            log.error(e.getMessage());
        }
 

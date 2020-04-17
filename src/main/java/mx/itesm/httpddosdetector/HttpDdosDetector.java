@@ -114,9 +114,9 @@ public class HttpDdosDetector {
 
             // Adds packet processor with CONTROL priority which is a high priority 
             // that allows to control traffic. 
-            log.debug('Adding processor...');
+            log.debug("Adding processor...");
             packetService.addProcessor(packetProcessor, PROCESSOR_PRIORITY);
-            log.debug('Requesting packets...');
+            log.debug("Requesting packets...");
             packetService.requestPackets(intercept, PacketPriority.CONTROL, appId,
                                         Optional.empty());
 
@@ -124,17 +124,17 @@ public class HttpDdosDetector {
             // CONTROL priority, if it affects then change it to REACTIVE priority
 
             // Initialize the classifier and load the model to be used
-            log.debug('Building RandomTreeBinClassifier...');
+            log.debug("Building RandomTreeBinClassifier...");
             classifier = new RandomTreeBinClassifier();
             classifier.Load("/models/randomTree.appddos.model");
 
             // Initialize the flow api to communicate with the rest api
             flowApi = new FlowApi(appId);
-            log.debug('Flow API Initialized');
+            log.debug("Flow API Initialized");
 
             log.info("HTTP DDoS detector started");
         } catch (Exception e) {
-            log.error('Exception thrown at activate()');
+            log.error("Exception thrown at activate()");
             log.error(e.getMessage());
         }
     }
@@ -145,7 +145,7 @@ public class HttpDdosDetector {
     @Deactivate
     protected void deactivate() {
         try {
-            log.debug('HTTP DDoS detector stopping...');
+            log.debug("HTTP DDoS detector stopping...");
             
             packetService.removeProcessor(packetProcessor);
             flows.clear();
@@ -154,7 +154,7 @@ public class HttpDdosDetector {
             
             log.info("HTTP DDoS detector stopped");
         } catch (Exception e) {
-            log.error('Exception thrown at deactivate()');
+            log.error("Exception thrown at deactivate()");
             log.error(e.getMessage());
         }
     }
@@ -166,7 +166,7 @@ public class HttpDdosDetector {
      */
     private void processPacket(PacketContext context, Ethernet eth) {
         try {
-            log.debug('Processing packet...');
+            log.debug("Processing packet...");
             
             // Get identifiers of the packet
             DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
@@ -306,9 +306,9 @@ public class HttpDdosDetector {
             });
 
             // TODO(abrahamtorres): Remove expired flow rules
-            log.debug('Finished processing packet.');
+            log.debug("Finished processing packet.");
         } catch (Exception e) {
-            log.error('Exception thrown at processPacket()');
+            log.error("Exception thrown at processPacket()");
             log.error(e.getMessage());
         }        
     }
