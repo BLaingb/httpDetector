@@ -87,10 +87,6 @@
                 <groupId>org.onosproject</groupId>
                 <artifactId>onos-maven-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>nz.ac.waikato.cms.wek</groupId>
-                <artifactId>weka-stable</artifactId>
-            </plugin>
         </plugins>
     </build>
 
