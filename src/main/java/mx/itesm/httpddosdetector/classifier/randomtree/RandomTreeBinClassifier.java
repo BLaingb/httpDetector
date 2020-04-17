@@ -136,10 +136,9 @@ public class RandomTreeBinClassifier extends Classifier {
     private RandomTree tree;
 
     public void Load(String filepath) {
-        // TODO(epicLevi): Remove debug comments Tier 2
-//        RandomTreeCodec codec = new RandomTreeCodec();
-//        tree = codec.decode(filepath);
-//        super.Load(filepath);
+        RandomTreeCodec codec = new RandomTreeCodec();
+        tree = codec.decode(filepath);
+        super.Load(filepath);
     }
 
     /**
