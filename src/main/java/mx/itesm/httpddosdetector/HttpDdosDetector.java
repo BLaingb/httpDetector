@@ -155,9 +155,14 @@ public class HttpDdosDetector {
         //////////////////////////////////////////////////////////////
         // HTTP CLIENT TEST
 
-        Client client = ClientBuilder.newClient();
-        Response response = client.target("https://www.mocky.io/v2/5185415ba171ea3a00704eed").request("text/plain").get();
-        log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", response.getStatus());
+        try {
+            Client client = ClientBuilder.newClient();
+            Response response = client.target("https://www.mocky.io/v2/5185415ba171ea3a00704eed").request("text/plain").get();
+            log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", response.getStatus());
+        } catch (Exception e) {
+            log.error("Error talking to Classifier API.");
+            log.error(e.getMessage());
+        }
 
         //////////////////////////////////////////////////////////////
         
