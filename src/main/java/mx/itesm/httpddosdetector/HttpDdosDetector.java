@@ -59,6 +59,13 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
+//////////////////////////////////////////////
+// HTTP CLIENT TEST
+import javax.ws.rs.client.Client; 
+import javax.ws.rs.client.ClientBuilder; 
+import javax.ws.rs.core.Response;
+//////////////////////////////////////////////
+
 /**
  * Onos application to detect and mitigate HTTP DDoS Attacks
  */
@@ -144,6 +151,16 @@ public class HttpDdosDetector {
      * @param eth ethernet packet
      */
     private void processPacket(PacketContext context, Ethernet eth) {
+        
+        //////////////////////////////////////////////////////////////
+        // HTTP CLIENT TEST
+
+        Client client = ClientBuilder.newClient();
+        Response res = client.target("https://www.mocky.io/v2/5185415ba171ea3a00704eed").request("text/plain").get();
+        log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", res.getStatus());
+
+        //////////////////////////////////////////////////////////////
+        
         // Get identifiers of the packet
         DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
         IPv4 ipv4 = (IPv4) eth.getPayload();
