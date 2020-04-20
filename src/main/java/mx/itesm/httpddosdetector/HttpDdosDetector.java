@@ -59,6 +59,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
+// PROCESS-ABLE CLASSIFIER TEST
+import java.lang.ProcessBuilder;
+
 /**
  * Onos application to detect and mitigate HTTP DDoS Attacks
  */
@@ -144,6 +147,44 @@ public class HttpDdosDetector {
      * @param eth ethernet packet
      */
     private void processPacket(PacketContext context, Ethernet eth) {
+        /////////////////////////////////////////////////////////////
+        // PROCESS-ABLE CLASSIFIER TEST
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBulder.command("bash", "-c" "ls /home/");
+
+            Process process = processBuilder.start();
+            StringBuilder output = new StringBuilder();
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line + "\n");
+            }
+
+            int exitVal = process.waitFor();
+            if (exitVal == 0) {
+                log.info("Successfully called process-able classifier, response:");
+                log.info(output)
+            } else {
+                log.info("Abnormal behavior calling process-able classifier, response:");
+                log.info(output);
+            }
+
+        } catch (IOException e) {
+            log.error("IOException calling process-able classifier.");
+            log.error(e.getMessage());
+        } catch (InterruptedException e) {
+            log.error("InterruptedException calling process-able classifier.");
+            log.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("Exception calling process-able classifier.");
+            log.error(e.getMessage());
+        }
+        // PROCESS-ABLE CLASSIFIER TEST
+        /////////////////////////////////////////////////////////////
+        
         // Get identifiers of the packet
         DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
         IPv4 ipv4 = (IPv4) eth.getPayload();
