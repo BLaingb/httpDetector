@@ -156,8 +156,8 @@ public class HttpDdosDetector {
         // HTTP CLIENT TEST
 
         Client client = ClientBuilder.newClient();
-        Response res = client.target("https://www.mocky.io/v2/5185415ba171ea3a00704eed").request("text/plain").get();
-        log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", res.getStatus());
+        Response response = client.target("https://www.mocky.io/v2/5185415ba171ea3a00704eed").request("text/plain").get();
+        log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", response.getStatus());
 
         //////////////////////////////////////////////////////////////
         
