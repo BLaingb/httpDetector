@@ -59,8 +59,16 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
+/////////////////////////////////
 // PROCESS-ABLE CLASSIFIER TEST
 import java.lang.ProcessBuilder;
+import java.lang.StringBuilder;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.lang.InterruptedException;
+// PROCESS-ABLE CLASSIFIER TEST
+/////////////////////////////////
 
 /**
  * Onos application to detect and mitigate HTTP DDoS Attacks
@@ -151,7 +159,7 @@ public class HttpDdosDetector {
         // PROCESS-ABLE CLASSIFIER TEST
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBulder.command("bash", "-c" "ls /home/");
+            processBuilder.command("bash", "-c", "ls /home/");
 
             Process process = processBuilder.start();
             StringBuilder output = new StringBuilder();
@@ -166,10 +174,10 @@ public class HttpDdosDetector {
             int exitVal = process.waitFor();
             if (exitVal == 0) {
                 log.info("Successfully called process-able classifier, response:");
-                log.info(output)
+                log.info(output.toString());
             } else {
                 log.info("Abnormal behavior calling process-able classifier, response:");
-                log.info(output);
+                log.info(output.toString());
             }
 
         } catch (IOException e) {
