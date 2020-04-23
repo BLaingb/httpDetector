@@ -398,7 +398,6 @@ public class HttpDdosDetector {
                     Long.toString(f.f[TOTAL_FPACKETS].Get()),
                     Long.toString(f.f[TOTAL_FVOLUME].Get()),
                     Long.toString(f.f[TOTAL_BPACKETS].Get()),
-                    Long.toString(f.f[TOTAL_BPACKETS].Get()),
                     Long.toString(f.f[TOTAL_BVOLUME].Get()),
                     Long.toString(fpktlDistribution.get(MIN)),
                     Long.toString(fpktlDistribution.get(MEAN)),
