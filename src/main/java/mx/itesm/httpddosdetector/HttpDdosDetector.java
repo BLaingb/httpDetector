@@ -159,7 +159,7 @@ public class HttpDdosDetector {
         // PROCESS-ABLE CLASSIFIER TEST
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "ls /home/");
+            processBuilder.command("devices");
 
             Process process = processBuilder.start();
             StringBuilder output = new StringBuilder();
