@@ -392,7 +392,9 @@ public class HttpDdosDetector {
         // PROCESS-ABLE CLASSIFIER TEST
         try {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("java","-jar","process-able-classifier",
+            processBuilder.command("java","-jar","process-able-classifier.jar",
+                    "randomTree",
+                    "/root/onos/apache-karaf-4.2.6/",
                     Long.toString(f.f[TOTAL_FPACKETS].Get()),
                     Long.toString(f.f[TOTAL_FVOLUME].Get()),
                     Long.toString(f.f[TOTAL_BPACKETS].Get()),
