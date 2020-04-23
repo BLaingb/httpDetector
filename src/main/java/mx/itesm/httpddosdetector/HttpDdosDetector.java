@@ -46,7 +46,7 @@ import mx.itesm.api.flow.FlowApi;
 import mx.itesm.api.flow.FlowRuleId;
 import mx.itesm.api.ApiResponse;
 
-import java.util.Optional;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,9 +55,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedList;
 
 /////////////////////////////////
 // PROCESS-ABLE CLASSIFIER TEST
@@ -76,6 +73,33 @@ import java.lang.InterruptedException;
 @Component(immediate = true)
 public class HttpDdosDetector {
 
+    static final int TOTAL_FPACKETS = 0;
+    static final int TOTAL_FVOLUME = 1;
+    static final int TOTAL_BPACKETS = 2;
+    static final int TOTAL_BVOLUME = 3;
+    static final int FPKTL = 4;
+    static final int BPKTL = 5;
+    static final int FIAT = 6;
+    static final int BIAT = 7;
+    static final int DURATION = 8;
+    static final int ACTIVE = 9;
+    static final int IDLE = 10;
+    static final int SFLOW_FPACKETS = 11;
+    static final int SFLOW_FBYTES = 12;
+    static final int SFLOW_BPACKETS = 13;
+    static final int SFLOW_BBYTES = 14;
+    static final int FPSH_CNT = 15;
+    static final int BPSH_CNT = 16;
+    static final int FURG_CNT = 17;
+    static final int BURG_CNT = 18;
+    static final int TOTAL_FHLEN = 19;
+    static final int TOTAL_BHLEN = 20;
+    static final int NUM_FEATURES = 21;
+
+    static final int MIN = 0;
+    static final int MEAN = 1;
+    static final int MAX = 2;
+    static final int STD = 4;
     /** Properties. */
     private static Logger log = LoggerFactory.getLogger(HttpDdosDetector.class);
     // The priority of our packet processor.
@@ -155,43 +179,7 @@ public class HttpDdosDetector {
      * @param eth ethernet packet
      */
     private void processPacket(PacketContext context, Ethernet eth) {
-        /////////////////////////////////////////////////////////////
-        // PROCESS-ABLE CLASSIFIER TEST
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("hostname");
 
-            Process process = processBuilder.start();
-            StringBuilder output = new StringBuilder();
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-
-            int exitVal = process.waitFor();
-            if (exitVal == 0) {
-                log.info("Successfully called process-able classifier, response:");
-                log.info(output.toString());
-            } else {
-                log.info("Abnormal behavior calling process-able classifier, response:");
-                log.info(output.toString());
-            }
-
-        } catch (IOException e) {
-            log.error("IOException calling process-able classifier.");
-            log.error(e.getMessage());
-        } catch (InterruptedException e) {
-            log.error("InterruptedException calling process-able classifier.");
-            log.error(e.getMessage());
-        } catch (Exception e) {
-            log.error("Exception calling process-able classifier.");
-            log.error(e.getMessage());
-        }
-        // PROCESS-ABLE CLASSIFIER TEST
-        /////////////////////////////////////////////////////////////
         
         // Get identifiers of the packet
         DeviceId deviceId = context.inPacket().receivedFrom().deviceId();
@@ -232,8 +220,10 @@ public class HttpDdosDetector {
 
         // If connection is closed
         if(f.IsClosed()){
+            // PROCESS-ABLE
+            RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(execComando(f));
             // Pass through classifier
-            RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
+            //RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(classifier.Classify(f));
             // React depending on the result
             switch(flowClass){
                 case NORMAL:
@@ -390,4 +380,93 @@ public class HttpDdosDetector {
         }
     }
 
+    private int execComando(FlowData f){
+        ArrayList<Long> bpktl = f.f[BPKTL].ToArrayList();
+        ArrayList<Long> fpktlDistribution = f.f[FPKTL].ToArrayList();
+        ArrayList<Long> fiat = f.f[FIAT].ToArrayList();
+        ArrayList<Long> biat = f.f[FIAT].ToArrayList();
+        ArrayList<Long> active = f.f[ACTIVE].ToArrayList();
+        ArrayList<Long> idle = f.f[IDLE].ToArrayList();
+
+        /////////////////////////////////////////////////////////////
+        // PROCESS-ABLE CLASSIFIER TEST
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command("java","-jar","process-able-classifier",
+                    Long.toString(f.f[TOTAL_FPACKETS].Get()),
+                    Long.toString(f.f[TOTAL_FVOLUME].Get()),
+                    Long.toString(f.f[TOTAL_BPACKETS].Get()),
+                    Long.toString(f.f[TOTAL_BPACKETS].Get()),
+                    Long.toString(f.f[TOTAL_BVOLUME].Get()),
+                    Long.toString(fpktlDistribution.get(MIN)),
+                    Long.toString(fpktlDistribution.get(MEAN)),
+                    Long.toString(fpktlDistribution.get(MAX)),
+                    Long.toString(fpktlDistribution.get(STD)),
+                    Long.toString(bpktl.get(MIN)),
+                    Long.toString(bpktl.get(MEAN)),
+                    Long.toString(bpktl.get(MAX)),
+                    Long.toString(bpktl.get(STD)),
+                    Long.toString(fiat.get(MIN)),
+                    Long.toString(fiat.get(MEAN)),
+                    Long.toString(fiat.get(MAX)),
+                    Long.toString(fiat.get(STD)),
+                    Long.toString(biat.get(MIN)),
+                    Long.toString(biat.get(MEAN)),
+                    Long.toString(biat.get(MAX)),
+                    Long.toString(biat.get(STD)),
+                    Long.toString(f.f[DURATION].Get()),
+                    Long.toString(active.get(MIN)),
+                    Long.toString(active.get(MEAN)),
+                    Long.toString(active.get(MAX)),
+                    Long.toString(active.get(STD)),
+                    Long.toString(idle.get(MIN)),
+                    Long.toString(idle.get(MEAN)),
+                    Long.toString(idle.get(MAX)),
+                    Long.toString(idle.get(STD)),
+                    Long.toString(f.f[SFLOW_FPACKETS].Get()),
+                    Long.toString(f.f[SFLOW_FBYTES].Get()),
+                    Long.toString(f.f[SFLOW_FPACKETS].Get()),
+                    Long.toString(f.f[SFLOW_BBYTES].Get()),
+                    Long.toString(f.f[FPSH_CNT].Get()),
+                    Long.toString(f.f[BPSH_CNT].Get()),
+                    Long.toString(f.f[FURG_CNT].Get()),
+                    Long.toString(f.f[TOTAL_FHLEN].Get()),
+                    Long.toString(f.f[TOTAL_BHLEN].Get())
+                    );
+
+            Process process = processBuilder.start();
+            StringBuilder output = new StringBuilder();
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line + "\n");
+            }
+
+            int exitVal = process.waitFor();
+            if (exitVal == 0) {
+                log.info("Successfully called process-able classifier, response:");
+                log.info(output.toString());
+                return Integer.parseInt( output.toString() );
+            } else {
+                log.info("Abnormal behavior calling process-able classifier, response:");
+                log.info(output.toString());
+
+            }
+
+        } catch (IOException e) {
+            log.error("IOException calling process-able classifier.");
+            log.error(e.getMessage());
+        } catch (InterruptedException e) {
+            log.error("InterruptedException calling process-able classifier.");
+            log.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("Exception calling process-able classifier.");
+            log.error(e.getMessage());
+        }
+        return -1;
+        // PROCESS-ABLE CLASSIFIER TEST
+        /////////////////////////////////////////////////////////////
+    }
 }
