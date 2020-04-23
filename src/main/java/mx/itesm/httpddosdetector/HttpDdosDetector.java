@@ -99,7 +99,7 @@ public class HttpDdosDetector {
     static final int MIN = 0;
     static final int MEAN = 1;
     static final int MAX = 2;
-    static final int STD = 4;
+    static final int STD = 3;
     /** Properties. */
     private static Logger log = LoggerFactory.getLogger(HttpDdosDetector.class);
     // The priority of our packet processor.
