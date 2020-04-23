@@ -432,6 +432,7 @@ public class HttpDdosDetector {
                     Long.toString(f.f[FPSH_CNT].Get()),
                     Long.toString(f.f[BPSH_CNT].Get()),
                     Long.toString(f.f[FURG_CNT].Get()),
+                    Long.toString(f.f[BURG_CNT].Get()),
                     Long.toString(f.f[TOTAL_FHLEN].Get()),
                     Long.toString(f.f[TOTAL_BHLEN].Get())
                     );
