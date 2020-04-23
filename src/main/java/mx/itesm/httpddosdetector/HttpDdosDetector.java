@@ -384,7 +384,7 @@ public class HttpDdosDetector {
         ArrayList<Long> bpktl = f.f[BPKTL].ToArrayList();
         ArrayList<Long> fpktlDistribution = f.f[FPKTL].ToArrayList();
         ArrayList<Long> fiat = f.f[FIAT].ToArrayList();
-        ArrayList<Long> biat = f.f[FIAT].ToArrayList();
+        ArrayList<Long> biat = f.f[BIAT].ToArrayList();
         ArrayList<Long> active = f.f[ACTIVE].ToArrayList();
         ArrayList<Long> idle = f.f[IDLE].ToArrayList();
 
@@ -427,7 +427,7 @@ public class HttpDdosDetector {
                     Long.toString(idle.get(STD)),
                     Long.toString(f.f[SFLOW_FPACKETS].Get()),
                     Long.toString(f.f[SFLOW_FBYTES].Get()),
-                    Long.toString(f.f[SFLOW_FPACKETS].Get()),
+                    Long.toString(f.f[SFLOW_BPACKETS].Get()),
                     Long.toString(f.f[SFLOW_BBYTES].Get()),
                     Long.toString(f.f[FPSH_CNT].Get()),
                     Long.toString(f.f[BPSH_CNT].Get()),
