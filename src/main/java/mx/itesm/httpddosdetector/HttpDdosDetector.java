@@ -443,13 +443,13 @@ public class HttpDdosDetector {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                output.append(line + "\n");
+                output.append(line);
             }
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
                 log.info("Successfully called process-able classifier, response:");
-                log.info(output.toString());
+                log.info(output.toString()+"\n");
                 return Integer.parseInt( output.toString() );
             } else {
                 log.info("Abnormal behavior calling process-able classifier, response:");
