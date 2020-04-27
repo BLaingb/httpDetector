@@ -403,7 +403,7 @@ public class HttpDdosDetector {
         ArrayList<Long> idle = f.f[IDLE].ToArrayList();
         return String.format(
                 "{"+
-                        "\"clasiffier\": \"randomtree\","+
+                        "\"classifier\": \"randomtree\","+
                         "\"flow\": {"+
                         "\"total_fpackets\": %s,"+
                         "\"total_fvolume\": %s,"+
