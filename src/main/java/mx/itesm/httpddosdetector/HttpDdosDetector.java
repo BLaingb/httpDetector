@@ -223,7 +223,8 @@ public class HttpDdosDetector {
             try {
                 String flujoJson= generateJSONFlow(f);
                 Client client = ClientBuilder.newClient();
-                log.info("Mandando solicitud...");
+                log.info("Mandando solicitud con JSON:");
+                log.info(flujoJson);
                 String response = client.target("http://172.17.0.2:8080/rest/service/classify")
                         .request().post(Entity.entity(flujoJson, MediaType.APPLICATION_JSON)
                                 , String.class);
@@ -403,7 +404,7 @@ public class HttpDdosDetector {
         return String.format(
                 "{"+
                         "\"clasiffier\": \"randomtree\","+
-                        "\"flow\":{"+
+                        "\"flow\": {"+
                         "\"total_fpackets\": %s,"+
                         "\"total_fvolume\": %s,"+
                         "\"total_bpackets\": %s,"+
