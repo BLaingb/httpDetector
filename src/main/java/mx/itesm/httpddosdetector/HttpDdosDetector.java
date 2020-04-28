@@ -15,6 +15,7 @@
  */
 package mx.itesm.httpddosdetector;
 
+import mx.itesm.httpddosdetector.classifier.randomforest.RandomForest;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.IPv4;
 import org.onlab.packet.IpPrefix;
@@ -219,16 +220,17 @@ public class HttpDdosDetector {
         if(f.IsClosed()){
             //////////////////////////////////////////////////////////////
             // HTTP CLIENT TEST
-            RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(1);
+            RandomForestBinClassifier.Class flowClass = RandomForestBinClassifier.Class.valueOf(-1);
             try {
                 String flujoJson= generateJSONFlow(f);
                 Client client = ClientBuilder.newClient();
-                log.info("Mandando solicitud con JSON:");
-                log.info(flujoJson);
+                //log.info("Mandando solicitud con JSON:");
+                //log.info(flujoJson);
                 String response = client.target("http://172.17.0.2:8080/rest/service/classify")
                         .request().post(Entity.entity(flujoJson, MediaType.APPLICATION_JSON)
                                 , String.class);
-                log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", response);
+                //log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", response);
+                flowClass = RandomForestBinClassifier.Class.valueOf( Integer.parseInt(response) );
             } catch (Exception e) {
                 log.error("Error talking to Classifier API.");
                 log.error(e.getMessage());
@@ -244,6 +246,14 @@ public class HttpDdosDetector {
                     log.info("Detected normal flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
                     break;
                 case ATTACK:
+                case SLOWBODY2:
+                case SLOWREAD:
+                case DDOSSIM:
+                case SLOWHEADERS:
+                case GOLDENEYE:
+                case RUDY:
+                case HULK:
+                case SLOWLORIS:
                     log.warn("Detected attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
                     // Add attack to the proper queue
                     LinkedList<FlowData> attackFlowsQueue;

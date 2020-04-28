@@ -36,14 +36,56 @@ public class RandomForestBinClassifier extends Classifier {
          * Indicates if there was an error while classifying the flow
          */
         ERROR(-1),
+
         /**
          * Indicates if the flow is part of normal network traffic
          */
         NORMAL(0),
+
         /**
          * Indicates if the flow is part of a http ddos attack
          */
-        ATTACK(1);
+        ATTACK(1),
+
+        /**
+         * Indicates if the flow is part of a http ddos slowbody2 attack
+         */
+        SLOWBODY2(2),
+
+        /**
+         * Indicates if the flow is part of a http ddos slowread attack
+         */
+        SLOWREAD(3),
+
+        /**
+         * Indicates if the flow is part of a http ddos ddossim attack
+         */
+        DDOSSIM(4),
+
+        /**
+         * Indicates if the flow is part of a http ddos slowheaders attack
+         */
+        SLOWHEADERS(5),
+
+        /**
+         * Indicates if the flow is part of a http ddos goldeneye attack
+         */
+        GOLDENEYE(6),
+
+        /**
+         * Indicates if the flow is part of a http ddos rudy attack
+         */
+        RUDY(7),
+
+        /**
+         * Indicates if the flow is part of a http ddos hulk attack
+         */
+        HULK(8),
+
+        /**
+         * Indicates if the flow is part of a http ddos slowloris attack
+         */
+        SLOWLORIS(9);
 
         private final int value;
 
@@ -56,13 +98,29 @@ public class RandomForestBinClassifier extends Classifier {
         }
 
         public static Class valueOf(int value) {
-            switch(value){
+            switch (value) {
                 case 0:
-                    return Class.NORMAL;
+                    return RandomForestBinClassifier.Class.NORMAL;
                 case 1:
-                    return Class.ATTACK;
+                    return RandomForestBinClassifier.Class.ATTACK;
+                case 2:
+                    return RandomForestBinClassifier.Class.SLOWBODY2;
+                case 3:
+                    return RandomForestBinClassifier.Class.SLOWREAD;
+                case 4:
+                    return RandomForestBinClassifier.Class.DDOSSIM;
+                case 5:
+                    return RandomForestBinClassifier.Class.SLOWHEADERS;
+                case 6:
+                    return RandomForestBinClassifier.Class.GOLDENEYE;
+                case 7:
+                    return RandomForestBinClassifier.Class.RUDY;
+                case 8:
+                    return RandomForestBinClassifier.Class.HULK;
+                case 9:
+                    return RandomForestBinClassifier.Class.SLOWLORIS;
                 default:
-                    return Class.ERROR;
+                    return RandomForestBinClassifier.Class.ERROR;
             }
         }
     }
