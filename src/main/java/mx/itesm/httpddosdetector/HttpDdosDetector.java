@@ -254,7 +254,16 @@ public class HttpDdosDetector {
                 case RUDY:
                 case HULK:
                 case SLOWLORIS:
-                    log.warn("Detected attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
+                    log.warn(
+                            "Detected {} attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})",
+                            flowClass,
+                            f.srcip,
+                            f.srcport,
+                            f.dstip,
+                            f.dstport,
+                            f.proto
+                    );
+                    /*log.warn("Detected attack flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
                     // Add attack to the proper queue
                     LinkedList<FlowData> attackFlowsQueue;
                     DistributedAttackKey k = f.forwardKey.toDistributedAttackKey();
@@ -264,7 +273,7 @@ public class HttpDdosDetector {
                         attackFlowsQueue = new LinkedList<FlowData>();
                         attackFlows.put(k, attackFlowsQueue);
                     }
-                    attackFlowsQueue.add(f);
+                    attackFlowsQueue.add(f);*/
                     break;
                 case ERROR:
                     log.error("Error predicting flow, Key(srcip: {}, srcport: {}, dstip: {}, dstport: {}, proto: {})", f.srcip, f.srcport, f.dstip, f.dstport, f.proto);
