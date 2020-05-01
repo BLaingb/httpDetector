@@ -248,6 +248,7 @@ public class HttpDdosDetector {
                             f.dstport,
                             f.proto
                     );                    // Add attack to the proper queue
+                    /*
                     LinkedList<FlowData> attackFlowsQueue;
                     DistributedAttackKey k = f.forwardKey.toDistributedAttackKey();
                     if(attackFlows.containsKey(k)){
@@ -256,7 +257,7 @@ public class HttpDdosDetector {
                         attackFlowsQueue = new LinkedList<FlowData>();
                         attackFlows.put(k, attackFlowsQueue);
                     }
-                    attackFlowsQueue.add(f);
+                    attackFlowsQueue.add(f);*/
                     break;
 
 
