@@ -463,6 +463,10 @@ public class HttpDdosDetector {
                         "\"burg_cnt\": %s,"+
                         "\"total_fhlen\": %s,"+
                         "\"total_bhlen\": %s"+
+                        "\"dscp\": %d"+
+                        "\"firstTime\": %d"+
+                        "\"flast\": %d"+
+                        "\"blast\": %d"+
                         "}"+
                         "}",
                 Long.toString(f.f[TOTAL_FPACKETS].Get()),
@@ -503,7 +507,11 @@ public class HttpDdosDetector {
                 Long.toString(f.f[FURG_CNT].Get()),
                 Long.toString(f.f[BURG_CNT].Get()),
                 Long.toString(f.f[TOTAL_FHLEN].Get()),
-                Long.toString(f.f[TOTAL_BHLEN].Get())
+                Long.toString(f.f[TOTAL_BHLEN].Get()),
+                f.dscp,
+                f.firstTime,
+                f.flast,
+                f.blast
         );
     }
 
