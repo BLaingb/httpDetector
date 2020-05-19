@@ -462,10 +462,10 @@ public class HttpDdosDetector {
                         "\"furg_cnt\": %s,"+
                         "\"burg_cnt\": %s,"+
                         "\"total_fhlen\": %s,"+
-                        "\"total_bhlen\": %s"+
-                        "\"dscp\": %d"+
-                        "\"firstTime\": %d"+
-                        "\"flast\": %d"+
+                        "\"total_bhlen\": %s,"+
+                        "\"dscp\": %d,"+
+                        "\"firstTime\": %d,"+
+                        "\"flast\": %d,"+
                         "\"blast\": %d"+
                         "}"+
                         "}",
