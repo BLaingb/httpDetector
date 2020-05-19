@@ -226,7 +226,7 @@ public class HttpDdosDetector {
                 Client client = ClientBuilder.newClient();
                 //log.info("Mandando solicitud con JSON:");
                 //log.info(flujoJson);
-                String response = client.target("http://172.17.0.2:8080/rest/service/classify")
+                String response = client.target("http://192.168.0.121:9001/test")
                         .request().post(Entity.entity(flujoJson, MediaType.APPLICATION_JSON)
                                 , String.class);
                 //log.info("I MADE A FUCKING GET REQUEST AND THE FUCKER SAID: {}", response);
