@@ -422,7 +422,7 @@ public class HttpDdosDetector {
         ArrayList<Long> idle = f.f[IDLE].ToArrayList();
         return String.format(
                 "{"+
-                        "\"srcip\": %i,"+
+                        "\"srcip\": %d,"+
                         "\"flow\": {"+
                         "\"total_fpackets\": %s,"+
                         "\"total_fvolume\": %s,"+
