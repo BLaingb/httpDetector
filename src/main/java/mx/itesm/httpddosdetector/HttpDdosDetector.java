@@ -422,7 +422,7 @@ public class HttpDdosDetector {
         ArrayList<Long> idle = f.f[IDLE].ToArrayList();
         return String.format(
                 "{"+
-                        "\"classifier\": \"randomtree\","+
+                        "\"srcip\": %i,"+
                         "\"flow\": {"+
                         "\"total_fpackets\": %s,"+
                         "\"total_fvolume\": %s,"+
@@ -469,6 +469,7 @@ public class HttpDdosDetector {
                         "\"blast\": %d"+
                         "}"+
                         "}",
+                f.srcip,
                 Long.toString(f.f[TOTAL_FPACKETS].Get()),
                 Long.toString(f.f[TOTAL_FVOLUME].Get()),
                 Long.toString(f.f[TOTAL_BPACKETS].Get()),
